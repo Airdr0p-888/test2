@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>杀零拳头 · Mint</title>
+    <link id="themeCss" rel="stylesheet" href="./mint.css" />
+    <script>
+      const assetVersion = Date.now();
+      document.getElementById("themeCss").href = `./mint.css?v=${assetVersion}`;
+      const mintScript = document.createElement("script");
+      mintScript.type = "module";
+      mintScript.src = `./mint.js?v=${assetVersion}`;
+      document.head.appendChild(mintScript);
+    </script>
+  </head>
+  <body>
+    <!-- 粒子背景 -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- 顶部导航 -->
+    <header class="top-nav">
+      <div class="brand-mark">
+        <div class="avatar-wrap">
+          <img src="./touxiao.png" alt="杀零拳头" />
+          <div class="avatar-glow"></div>
+        </div>
+        <div class="brand-text">
+          <strong class="brand-name">杀零拳头</strong>
+          <span class="brand-sub">KILL ZERO FIST</span>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="./index.html" class="nav-link">官网</a>
+        <a href="#mint-section" class="nav-link active">Mint</a>
+      </nav>
+      <div class="account-strip">
+        <div class="account-chip">
+          <span>钱包</span>
+          <strong id="walletAddress">未连接</strong>
+        </div>
+        <div class="account-chip">
+          <span>网络</span>
+          <strong id="networkName">未知</strong>
+        </div>
+        <button id="switchNetwork" class="network-button">切换 BSC</button>
+        <button id="connectWallet" class="connect-button">连接钱包</button>
+      </div>
+    </header>
+
+    <main class="page">
+
+      <!-- 英雄区 -->
+      <section class="hero-section" id="mint-section">
+        <div class="hero-left">
+          <div class="hero-badge">🥊 LAUNCH EVENT</div>
+          <h1 class="hero-title">
+            <span class="title-line-1">杀零</span>
+            <span class="title-line-2">拳头</span>
+          </h1>
+          <p class="hero-desc">一击必杀·零成本入场·拳击链上传奇</p>
+          <ul class="mint-rules">
+            <li><span class="rule-icon">⚡</span>代币秒到账</li>
+            <li><span class="rule-icon">🥊</span>一个钱包只能 Mint 一次</li>
+            <li><span class="rule-icon">💰</span>可直接往合约转账 BNB</li>
+          </ul>
+          <div class="hero-metrics">
+            <div class="metric-item">
+              <span class="metric-label">公平 Mint</span>
+              <div class="metric-bar"></div>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">秒到账</span>
+              <div class="metric-bar"></div>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">钱包限次</span>
+              <div class="metric-bar"></div>
+            </div>
+          </div>
+
+          <!-- 合约地址输入 -->
+          <div class="contract-card" id="contractCardWrapper">
+            <label>
+              <span>合约地址</span>
+              <input id="contractAddress" placeholder="Token contract address" />
+            </label>
+            <button id="loadContract" class="ghost-button">读取合约</button>
+          </div>
+        </div>
+
+        <div class="hero-right">
+          <div class="avatar-stage">
+            <div class="orbit-ring ring-1"></div>
+            <div class="orbit-ring ring-2"></div>
+            <div class="orbit-ring ring-3"></div>
+            <div class="avatar-frame">
+              <div class="avatar-inner">
+                <img src="./touxiao.png" alt="杀零拳头" />
+              </div>
+              <div class="frame-corner c1"></div>
+              <div class="frame-corner c2"></div>
+              <div class="frame-corner c3"></div>
+              <div class="frame-corner c4"></div>
+            </div>
+            <div class="power-bar">
+              <div class="power-fill"></div>
+            </div>
+            <div class="stage-label">KILL ZERO FIST</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 操作面板 -->
+      <section class="dashboard">
+
+        <!-- Mint 卡片 -->
+        <article class="trade-card mint-card">
+          <div class="card-head">
+            <div class="card-head-icon">🥊</div>
+            <div class="card-head-info">
+              <p class="eyebrow">参与 Mint</p>
+              <strong id="tokenTitle" class="token-name">杀零拳头</strong>
+              <h2>立即出拳</h2>
+            </div>
+            <div class="card-head-badge">MINT</div>
+          </div>
+          <div id="mintStats" class="stats"></div>
+          <button id="mintNow" class="action-button">
+            <span class="btn-icon">🥊</span>
+            立即 Mint
+          </button>
+        </article>
+
+      </section>
+
+      <!-- 隐藏的分红节点（JS 逻辑需要这些 DOM，保留但不显示） -->
+      <div style="display:none">
+        <div id="rewardStats"></div>
+        <button id="claimDividends"></button>
+      </div>
+
+      <!-- 底部装饰 -->
+      <div class="bottom-deco">
+        <span>KILL ZERO FIST</span>
+        <div class="deco-line"></div>
+        <span>BSC CHAIN</span>
+      </div>
+
+    </main>
+
+    <pre id="log" class="sr-log" aria-live="polite"></pre>
+    <span id="mintModeBadge" class="sr-log">未读取</span>
+    <span id="rewardUnitBadge" class="sr-log">-</span>
+
+    <script>
+      // 粒子效果
+      (function() {
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        
+        function resize() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        }
+        
+        function createParticle() {
+          return {
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+            size: Math.random() * 1.5 + 0.5,
+            opacity: Math.random() * 0.5 + 0.1,
+            color: Math.random() > 0.5 ? '#ff3a1a' : '#ffd700'
+          };
+        }
+        
+        resize();
+        for (let i = 0; i < 80; i++) particles.push(createParticle());
+        
+        function draw() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          particles.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = p.opacity;
+            ctx.fill();
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0 || p.x > canvas.width || p.y < 0 || p.y > canvas.height) {
+              Object.assign(p, createParticle());
+            }
+          });
+          ctx.globalAlpha = 1;
+          requestAnimationFrame(draw);
+        }
+        
+        draw();
+        window.addEventListener('resize', resize);
+      })();
+    </script>
+  </body>
+</html>

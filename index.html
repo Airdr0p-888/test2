@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>杀零拳头 · 官网</title>
+    <link rel="stylesheet" href="./index.css" />
+  </head>
+  <body>
+    <canvas id="bgCanvas"></canvas>
+
+    <!-- 导航 -->
+    <header class="site-nav">
+      <div class="nav-inner">
+        <div class="brand">
+          <div class="brand-logo">
+            <img src="./touxiao.png" alt="杀零拳头" />
+            <div class="logo-ring"></div>
+          </div>
+          <div class="brand-info">
+            <strong>杀零拳头</strong>
+            <span>KILL ZERO FIST</span>
+          </div>
+        </div>
+        <nav class="main-nav">
+          <a href="#about">关于</a>
+          <a href="#tokenomics">代币经济</a>
+          <a href="#roadmap">路线图</a>
+          <a href="#community">社区</a>
+          <a href="./mint.html" class="mint-nav-btn">🥊 进入 Mint</a>
+        </nav>
+        <button class="hamburger" id="hamburger" aria-label="菜单">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 移动端菜单 -->
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="#about" onclick="closeMobile()">关于</a>
+      <a href="#tokenomics" onclick="closeMobile()">代币经济</a>
+      <a href="#roadmap" onclick="closeMobile()">路线图</a>
+      <a href="#community" onclick="closeMobile()">社区</a>
+      <a href="./mint.html" class="mobile-mint-btn">🥊 进入 Mint</a>
+    </div>
+
+    <main>
+
+      <!-- Hero 英雄区 -->
+      <section class="hero">
+        <div class="hero-content">
+          <div class="hero-eyebrow">
+            <span class="dot"></span>
+            BSC CHAIN · FAIR LAUNCH
+            <span class="dot"></span>
+          </div>
+          <h1 class="hero-h1">
+            <span class="h1-line1">杀零</span>
+            <span class="h1-line2">拳头</span>
+          </h1>
+          <p class="hero-tagline">一击必杀 · 零成本入场 · 链上传奇永不磨灭</p>
+          <div class="hero-cta">
+            <a href="./mint.html" class="btn-primary">
+              🥊 立即 Mint
+            </a>
+            <a href="#about" class="btn-ghost">了解项目 →</a>
+          </div>
+          <div class="hero-stats">
+            <div class="hstat">
+              <strong>公平发射</strong>
+              <span>Fair Launch</span>
+            </div>
+            <div class="hstat-divider"></div>
+            <div class="hstat">
+              <strong>BSC 链上</strong>
+              <span>On-chain</span>
+            </div>
+            <div class="hstat-divider"></div>
+            <div class="hstat">
+              <strong>持币分红</strong>
+              <span>Dividends</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="glow-bg"></div>
+          <div class="hero-avatar-wrap">
+            <div class="ha-rings">
+              <div class="ha-ring r1"></div>
+              <div class="ha-ring r2"></div>
+              <div class="ha-ring r3"></div>
+              <div class="ha-ring r4"></div>
+            </div>
+            <div class="ha-frame">
+              <img src="./touxiao.png" alt="杀零拳头" />
+            </div>
+            <div class="ha-label">KILL ZERO FIST</div>
+            <div class="ha-badge">🥊 POWER LEVEL MAX</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 关于项目 -->
+      <section class="about-section section" id="about">
+        <div class="section-inner">
+          <div class="section-label">ABOUT</div>
+          <h2 class="section-h2">什么是<span>杀零拳头</span>？</h2>
+          <p class="section-desc">杀零拳头是部署在 BNB Smart Chain 上的公平发射代币。零预挖、无私募，所有人同等机会 Mint，代币即时到账，参与者均可享受持币分红权益。</p>
+          <div class="feature-grid">
+            <div class="feature-card">
+              <div class="fc-icon">⚡</div>
+              <h3>即时到账</h3>
+              <p>Mint 成功后代币秒速到达你的钱包，无需等待任何锁仓周期</p>
+            </div>
+            <div class="feature-card">
+              <div class="fc-icon">🛡️</div>
+              <h3>公平机制</h3>
+              <p>一个钱包地址只能参与一次 Mint，确保绝对公平的代币分发</p>
+            </div>
+            <div class="feature-card">
+              <div class="fc-icon">💰</div>
+              <h3>持币分红</h3>
+              <p>持有代币可累积分红奖励，随时领取，链上透明可验证</p>
+            </div>
+            <div class="feature-card">
+              <div class="fc-icon">🔗</div>
+              <h3>链上透明</h3>
+              <p>合约开源在 BSCScan，所有规则写入代码，无法篡改</p>
+            </div>
+            <div class="feature-card">
+              <div class="fc-icon">🥊</div>
+              <h3>战斗精神</h3>
+              <p>杀零拳头代表绝不认输、勇往直前的链上战士精神</p>
+            </div>
+            <div class="feature-card">
+              <div class="fc-icon">🚀</div>
+              <h3>社区驱动</h3>
+              <p>项目由社区共同推动，持有者就是项目的主人和建设者</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 代币经济 -->
+      <section class="token-section section" id="tokenomics">
+        <div class="section-inner">
+          <div class="section-label">TOKENOMICS</div>
+          <h2 class="section-h2">代币<span>经济模型</span></h2>
+          <div class="token-layout">
+            <div class="token-chart-area">
+              <div class="donut-wrap">
+                <svg viewBox="0 0 200 200" class="donut-chart">
+                  <!-- 背景圆 -->
+                  <circle cx="100" cy="100" r="70" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="28"/>
+                  <!-- Mint 分配 60% -->
+                  <circle cx="100" cy="100" r="70" fill="none" stroke="#ff3a1a" stroke-width="28"
+                    stroke-dasharray="263.9 175.9" stroke-dashoffset="0"
+                    transform="rotate(-90 100 100)" stroke-linecap="butt"/>
+                  <!-- 流动性 25% -->
+                  <circle cx="100" cy="100" r="70" fill="none" stroke="#ffd700" stroke-width="28"
+                    stroke-dasharray="110 329.9" stroke-dashoffset="-263.9"
+                    transform="rotate(-90 100 100)" stroke-linecap="butt"/>
+                  <!-- 社区 15% -->
+                  <circle cx="100" cy="100" r="70" fill="none" stroke="#ff8c1a" stroke-width="28"
+                    stroke-dasharray="66 373.9" stroke-dashoffset="-373.9"
+                    transform="rotate(-90 100 100)" stroke-linecap="butt"/>
+                  <!-- 中心文字 -->
+                  <text x="100" y="96" text-anchor="middle" fill="#fff" font-size="13" font-weight="900" font-family="sans-serif">总供应量</text>
+                  <text x="100" y="112" text-anchor="middle" fill="#ffd700" font-size="11" font-weight="700" font-family="sans-serif">100%</text>
+                </svg>
+              </div>
+              <div class="donut-legend">
+                <div class="legend-item">
+                  <span class="legend-dot" style="background:#ff3a1a;"></span>
+                  <span>公平 Mint</span>
+                  <strong>60%</strong>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot" style="background:#ffd700;"></span>
+                  <span>流动性池</span>
+                  <strong>25%</strong>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot" style="background:#ff8c1a;"></span>
+                  <span>社区激励</span>
+                  <strong>15%</strong>
+                </div>
+              </div>
+            </div>
+            <div class="token-info">
+              <div class="token-detail-card">
+                <div class="tdc-row">
+                  <span>代币名称</span>
+                  <strong>杀零拳头</strong>
+                </div>
+                <div class="tdc-row">
+                  <span>发行链</span>
+                  <strong>BNB Smart Chain</strong>
+                </div>
+                <div class="tdc-row">
+                  <span>Mint 方式</span>
+                  <strong>BNB / USDT</strong>
+                </div>
+                <div class="tdc-row">
+                  <span>地址限制</span>
+                  <strong>每地址 1 次</strong>
+                </div>
+                <div class="tdc-row">
+                  <span>代币到账</span>
+                  <strong>即时 · 秒到</strong>
+                </div>
+                <div class="tdc-row">
+                  <span>分红机制</span>
+                  <strong>持币可领取</strong>
+                </div>
+              </div>
+              <a href="./mint.html" class="btn-primary full-btn">🥊 去 Mint 获取代币</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 路线图 -->
+      <section class="roadmap-section section" id="roadmap">
+        <div class="section-inner">
+          <div class="section-label">ROADMAP</div>
+          <h2 class="section-h2">发展<span>路线图</span></h2>
+          <div class="roadmap-timeline">
+            <div class="timeline-line"></div>
+            <div class="rm-item active">
+              <div class="rm-dot active-dot">
+                <span>1</span>
+              </div>
+              <div class="rm-card">
+                <div class="rm-phase">Phase 1 · 已完成</div>
+                <h3>合约部署 &amp; 公平发射</h3>
+                <ul>
+                  <li>✅ 合约开发与审计</li>
+                  <li>✅ BSC 主网部署</li>
+                  <li>✅ Mint 界面上线</li>
+                  <li>✅ 社区建立</li>
+                </ul>
+              </div>
+            </div>
+            <div class="rm-item">
+              <div class="rm-dot">
+                <span>2</span>
+              </div>
+              <div class="rm-card">
+                <div class="rm-phase">Phase 2 · 进行中</div>
+                <h3>流动性 &amp; 交易开放</h3>
+                <ul>
+                  <li>🔄 PancakeSwap 流动性注入</li>
+                  <li>🔄 交易对开放</li>
+                  <li>🔄 持币分红激活</li>
+                  <li>🔄 CMC / CG 申请</li>
+                </ul>
+              </div>
+            </div>
+            <div class="rm-item future">
+              <div class="rm-dot future-dot">
+                <span>3</span>
+              </div>
+              <div class="rm-card">
+                <div class="rm-phase">Phase 3 · 规划中</div>
+                <h3>生态扩展</h3>
+                <ul>
+                  <li>⏳ CEX 上所</li>
+                  <li>⏳ NFT 战士系列</li>
+                  <li>⏳ 链上竞技游戏</li>
+                  <li>⏳ 跨链扩展</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 社区 -->
+      <section class="community-section section" id="community">
+        <div class="section-inner">
+          <div class="section-label">COMMUNITY</div>
+          <h2 class="section-h2">加入<span>战士社区</span></h2>
+          <p class="section-desc">杀零拳头社区由拳手组成，每一个 Mint 参与者都是战士。加入我们，共同书写链上传奇。</p>
+          <div class="community-cards">
+            <a href="#" class="comm-card">
+              <div class="comm-icon">💬</div>
+              <div class="comm-info">
+                <strong>Telegram</strong>
+                <span>加入官方社群</span>
+              </div>
+              <div class="comm-arrow">→</div>
+            </a>
+            <a href="#" class="comm-card">
+              <div class="comm-icon">🐦</div>
+              <div class="comm-info">
+                <strong>X (Twitter)</strong>
+                <span>关注最新动态</span>
+              </div>
+              <div class="comm-arrow">→</div>
+            </a>
+            <a href="#" class="comm-card">
+              <div class="comm-icon">📋</div>
+              <div class="comm-info">
+                <strong>BSCScan</strong>
+                <span>查看合约</span>
+              </div>
+              <div class="comm-arrow">→</div>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA 结尾 -->
+      <section class="final-cta">
+        <div class="fcta-inner">
+          <div class="fcta-avatar">
+            <img src="./touxiao.png" alt="杀零拳头" />
+          </div>
+          <h2>准备好出拳了吗？</h2>
+          <p>公平 Mint 进行中，错过就是错过</p>
+          <a href="./mint.html" class="btn-primary large-btn">🥊 立即 Mint</a>
+          <div class="fcta-note">代币秒到账 · 一个钱包仅限一次</div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <img src="./touxiao.png" alt="杀零拳头" />
+          <div>
+            <strong>杀零拳头</strong>
+            <span>KILL ZERO FIST · BSC Chain</span>
+          </div>
+        </div>
+        <div class="footer-links">
+          <a href="./mint.html">Mint 界面</a>
+          <a href="#about">关于</a>
+          <a href="#tokenomics">代币经济</a>
+          <a href="#roadmap">路线图</a>
+        </div>
+        <div class="footer-disclaimer">
+          加密货币存在市场风险，参与前请充分了解相关规则。
+        </div>
+        <div class="footer-copy">© 2024 杀零拳头 · All rights reserved</div>
+      </div>
+    </footer>
+
+    <script>
+      // 背景粒子
+      (function() {
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        let w, h, particles = [];
+
+        function resize() {
+          w = canvas.width = window.innerWidth;
+          h = canvas.height = window.innerHeight;
+        }
+
+        function mkParticle() {
+          return {
+            x: Math.random() * w, y: Math.random() * h,
+            vx: (Math.random() - 0.5) * 0.35,
+            vy: (Math.random() - 0.5) * 0.35,
+            size: Math.random() * 1.8 + 0.4,
+            opacity: Math.random() * 0.45 + 0.05,
+            color: ['#ff3a1a','#ffd700','#ff6b1a','#ff9a40'][Math.floor(Math.random()*4)]
+          };
+        }
+
+        resize();
+        for (let i = 0; i < 100; i++) particles.push(mkParticle());
+
+        function draw() {
+          ctx.clearRect(0, 0, w, h);
+          particles.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = p.opacity;
+            ctx.fill();
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0 || p.x > w || p.y < 0 || p.y > h) Object.assign(p, mkParticle());
+          });
+          ctx.globalAlpha = 1;
+          requestAnimationFrame(draw);
+        }
+
+        draw();
+        window.addEventListener('resize', resize);
+      })();
+
+      // 汉堡菜单
+      const hamburger = document.getElementById('hamburger');
+      const mobileMenu = document.getElementById('mobileMenu');
+      hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('open');
+        mobileMenu.classList.toggle('open');
+      });
+      function closeMobile() {
+        hamburger.classList.remove('open');
+        mobileMenu.classList.remove('open');
+      }
+
+      // 平滑滚动导航高亮
+      const navLinks = document.querySelectorAll('.main-nav a:not(.mint-nav-btn)');
+      const sections = document.querySelectorAll('section[id]');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            navLinks.forEach(l => {
+              l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id);
+            });
+          }
+        });
+      }, { threshold: 0.4 });
+      sections.forEach(s => observer.observe(s));
+    </script>
+  </body>
+</html>
