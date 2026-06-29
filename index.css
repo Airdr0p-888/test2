@@ -1065,6 +1065,12 @@ main, header, footer { position: relative; z-index: 1; }
 }
 
 /* ── 响应式 ── */
+
+/* 手机底部导航栏 */
+.bottom-tab-nav {
+  display: none;
+}
+
 @media (max-width: 1040px) {
   .hero { grid-template-columns: 1fr; padding-top: 40px; }
   .hero-visual { order: -1; }
@@ -1079,7 +1085,66 @@ main, header, footer { position: relative; z-index: 1; }
   .token-chart-area { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; }
   .community-cards { grid-template-columns: 1fr; }
   .main-nav { display: none; }
-  .hamburger { display: flex; }
+  .hamburger { display: none; }
+
+  /* 底部固定导航栏 */
+  .bottom-tab-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    background: rgba(8,1,1,0.97);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -4px 30px rgba(0,0,0,0.6), 0 -1px 0 rgba(255,58,26,0.2);
+    padding: 6px 0 env(safe-area-inset-bottom, 8px);
+  }
+
+  .btn-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 8px 2px;
+    text-decoration: none;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  .btn-item.active {
+    color: var(--gold);
+  }
+
+  .btn-item.active .btn-ico {
+    filter: drop-shadow(0 0 8px rgba(255,215,0,0.6));
+  }
+
+  .btn-ico {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .btn-txt {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+
+  /* Mint 按钮特殊高亮 */
+  .btn-mint {
+    color: var(--red-2);
+  }
+
+  .btn-mint .btn-ico {
+    filter: drop-shadow(0 0 6px rgba(255,58,26,0.5));
+  }
+
+  /* 底部留空间避免遮挡 */
+  main { padding-bottom: 20px; }
+  .site-footer { padding-bottom: 80px; }
 }
 
 @media (max-width: 640px) {

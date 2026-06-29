@@ -35,7 +35,7 @@
       </div>
     </header>
 
-    <!-- 移动端菜单 -->
+    <!-- 移动端菜单（保留备用） -->
     <div class="mobile-menu" id="mobileMenu">
       <a href="#about" onclick="closeMobile()">关于</a>
       <a href="#tokenomics" onclick="closeMobile()">代币经济</a>
@@ -43,6 +43,30 @@
       <a href="#community" onclick="closeMobile()">社区</a>
       <a href="./mint.html" class="mobile-mint-btn">🥊 进入 Mint</a>
     </div>
+
+    <!-- 手机端底部固定导航 -->
+    <nav class="bottom-tab-nav" id="bottomTabNav">
+      <a href="#about" class="btn-item" data-target="about">
+        <span class="btn-ico">📖</span>
+        <span class="btn-txt">关于</span>
+      </a>
+      <a href="#tokenomics" class="btn-item" data-target="tokenomics">
+        <span class="btn-ico">🪙</span>
+        <span class="btn-txt">代币</span>
+      </a>
+      <a href="#roadmap" class="btn-item" data-target="roadmap">
+        <span class="btn-ico">🗺️</span>
+        <span class="btn-txt">路线</span>
+      </a>
+      <a href="#community" class="btn-item" data-target="community">
+        <span class="btn-ico">💬</span>
+        <span class="btn-txt">社区</span>
+      </a>
+      <a href="./mint.html" class="btn-item btn-mint">
+        <span class="btn-ico">🥊</span>
+        <span class="btn-txt">Mint</span>
+      </a>
+    </nav>
 
     <main>
 
@@ -406,14 +430,19 @@
         mobileMenu.classList.remove('open');
       }
 
-      // 平滑滚动导航高亮
+      // 平滑滚动导航高亮（顶部导航 + 底部导航）
       const navLinks = document.querySelectorAll('.main-nav a:not(.mint-nav-btn)');
+      const bottomItems = document.querySelectorAll('.btn-item[data-target]');
       const sections = document.querySelectorAll('section[id]');
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(e => {
           if (e.isIntersecting) {
+            const id = '#' + e.target.id;
             navLinks.forEach(l => {
-              l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id);
+              l.classList.toggle('active', l.getAttribute('href') === id);
+            });
+            bottomItems.forEach(l => {
+              l.classList.toggle('active', l.getAttribute('data-target') === e.target.id);
             });
           }
         });
