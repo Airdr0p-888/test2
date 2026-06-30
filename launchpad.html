@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>杀零拳头 · 杀零拳头发射台</title>
+    <link rel="stylesheet" href="./launchpad.css" />
+  </head>
+  <body>
+    <canvas id="bgCanvas"></canvas>
+
+    <!-- 顶部导航 -->
+    <header class="lp-nav">
+      <div class="lp-nav-inner">
+        <a href="./index.html" class="lp-back">
+          <span class="lp-back-arrow">←</span>
+          <span>返回官网</span>
+        </a>
+        <div class="lp-brand">
+          <img src="./touxiao.png" alt="杀零拳头" class="lp-brand-logo" />
+          <div class="lp-brand-text">
+            <strong>杀零拳头发射台</strong>
+            <span>KILL ZERO FIST LAUNCH PAD</span>
+          </div>
+        </div>
+        <a href="./mint.html" class="lp-mint-link">🥊 Mint</a>
+      </div>
+    </header>
+
+    <!-- 手机端底部导航 -->
+    <nav class="bottom-tab-nav">
+      <a href="./index.html" class="btn-item">
+        <span class="btn-ico">🏠</span>
+        <span class="btn-txt">官网</span>
+      </a>
+      <a href="./launchpad.html" class="btn-item btn-launch active">
+        <span class="btn-ico">🚀</span>
+        <span class="btn-txt">发射台</span>
+      </a>
+      <a href="./mint.html" class="btn-item btn-mint">
+        <span class="btn-ico">🥊</span>
+        <span class="btn-txt">Mint</span>
+      </a>
+    </nav>
+
+    <main class="lp-main">
+
+      <!-- 页面标题 -->
+      <div class="lp-header">
+        <div class="lp-header-glow"></div>
+        <h1 class="lp-title">
+          <span class="lp-title-icon">🚀</span>
+          <span>杀零拳头发射台</span>
+        </h1>
+        <p class="lp-subtitle">选择发射模式 · 配置参数 · 一键部署你的代币经济引擎</p>
+        <div class="lp-status-bar">
+          <div class="lp-status-item">
+            <span class="lp-dot lp-dot-live"></span>
+            <span>BSC Chain</span>
+          </div>
+          <div class="lp-status-item">
+            <span class="lp-dot lp-dot-gold"></span>
+            <span>11 种发射模式</span>
+          </div>
+          <div class="lp-status-item">
+            <span class="lp-dot lp-dot-red"></span>
+            <span>即将开放</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 主体布局：左模式列表 + 右配置面板 -->
+      <div class="lp-layout">
+
+        <!-- 左侧模式选择 -->
+        <aside class="lp-modes" id="modesList">
+          <!-- JS 动态生成 -->
+        </aside>
+
+        <!-- 右侧配置面板 -->
+        <section class="lp-config" id="configPanel">
+          <!-- JS 动态生成 -->
+        </section>
+
+      </div>
+
+    </main>
+
+    <!-- 发射确认弹窗 -->
+    <div class="lp-modal-overlay" id="modalOverlay">
+      <div class="lp-modal">
+        <div class="lp-modal-icon">🚧</div>
+        <h3 class="lp-modal-title">发射功能即将开放</h3>
+        <p class="lp-modal-desc" id="modalDesc"></p>
+        <div class="lp-modal-config" id="modalConfig"></div>
+        <button class="lp-modal-close" onclick="closeModal()">知道了</button>
+      </div>
+    </div>
+
+    <script>
+      // ─── 发射模式定义 ───
+      const MODES = [
+        {
+          id: "mint",
+          icon: "🥊",
+          name: "Mint 发射",
+          en: "Mint Launch",
+          desc: "标准代币 Mint 发射模式，用户支付 BNB 获取代币",
+          color: "#ff3a1a",
+          fields: [
+            { key: "tokenName", label: "代币名称", type: "text", placeholder: "Kill Zero Fist", value: "" },
+            { key: "tokenSymbol", label: "代币符号", type: "text", placeholder: "KZF", value: "" },
+            { key: "totalSupply", label: "总供应量", type: "number", placeholder: "1000000000", value: "" },
+            { key: "mintPrice", label: "Mint 单价 (BNB)", type: "number", placeholder: "0.01", step: "0.0001", value: "" },
+            { key: "maxPerWallet", label: "单钱包限购量", type: "number", placeholder: "5000000", value: "" },
+            { key: "mintCap", label: "Mint 上限占比 (%)", type: "range", min: 10, max: 100, step: 5, value: 60 },
+          ]
+        },
+        {
+          id: "whitelist",
+          icon: "📋",
+          name: "白名单 Mint 发射",
+          en: "Whitelist Mint",
+          desc: "仅白名单地址可参与 Mint，支持批量导入白名单",
+          color: "#ff6040",
+          fields: [
+            { key: "tokenName", label: "代币名称", type: "text", placeholder: "Kill Zero Fist", value: "" },
+            { key: "tokenSymbol", label: "代币符号", type: "text", placeholder: "KZF", value: "" },
+            { key: "totalSupply", label: "总供应量", type: "number", placeholder: "1000000000", value: "" },
+            { key: "wlPrice", label: "白名单 Mint 价 (BNB)", type: "number", placeholder: "0.005", step: "0.0001", value: "" },
+            { key: "maxPerWl", label: "白名单单人限购", type: "number", placeholder: "1000000", value: "" },
+            { key: "wlAllocPct", label: "白名单分配占比 (%)", type: "range", min: 5, max: 80, step: 5, value: 30 },
+            { key: "wlAddresses", label: "白名单地址 (每行一个)", type: "textarea", placeholder: "0x1234...\n0x5678...\n0xabcd...", value: "" },
+          ]
+        },
+        {
+          id: "buyback",
+          icon: "🔄",
+          name: "回购销毁",
+          en: "Buyback & Burn",
+          desc: "用合约收入自动回购代币并销毁，通缩机制",
+          color: "#ff8c1a",
+          fields: [
+            { key: "tokenAddr", label: "代币合约地址", type: "text", placeholder: "0x...", value: "" },
+            { key: "buybackPct", label: "回购比例 (%)", type: "range", min: 1, max: 50, step: 1, value: 10 },
+            { key: "buybackFreq", label: "回购频率", type: "select", options: ["每笔交易", "每小时", "每4小时", "每天", "每周"], value: "每4小时" },
+            { key: "buybackSource", label: "回购资金来源", type: "select", options: ["交易税", "合约余额", "LP 手续费分成", "自定义"], value: "交易税" },
+            { key: "autoBurn", label: "自动销毁回购代币", type: "toggle", value: true },
+            { key: "burnAddr", label: "销毁地址", type: "text", placeholder: "0x000...000 (dead)", value: "0x000000000000000000000000000000000000dead" },
+          ]
+        },
+        {
+          id: "yield",
+          icon: "💰",
+          name: "理财出局",
+          en: "Yield Exit",
+          desc: "理财质押到期自动出局，本金+收益一次性返还",
+          color: "#ffd700",
+          fields: [
+            { key: "tokenAddr", label: "代币合约地址", type: "text", placeholder: "0x...", value: "" },
+            { key: "apy", label: "年化收益率 (%)", type: "number", placeholder: "120", step: "1", value: "" },
+            { key: "lockPeriod", label: "锁仓周期 (天)", type: "number", placeholder: "30", value: "" },
+            { key: "minStake", label: "最低质押量", type: "number", placeholder: "10000", value: "" },
+            { key: "maxStake", label: "最高质押量", type: "number", placeholder: "10000000", value: "" },
+            { key: "earlyExit", label: "允许提前出局", type: "toggle", value: false },
+            { key: "earlyExitPenalty", label: "提前出局罚金 (%)", type: "range", min: 0, max: 50, step: 5, value: 20 },
+          ]
+        },
+        {
+          id: "burnDiv",
+          icon: "🔥",
+          name: "燃烧分红",
+          en: "Burn Dividends",
+          desc: "燃烧代币获取分红资格，燃烧越多分红越多",
+          color: "#ff4500",
+          fields: [
+            { key: "tokenAddr", label: "代币合约地址", type: "text", placeholder: "0x...", value: "" },
+            { key: "divToken", label: "分红代币地址", type: "text", placeholder: "0x... (USDT/BNB等)", value: "" },
+            { key: "minBurn", label: "最低燃烧量", type: "number", placeholder: "10000", value: "" },
+            { key: "divFreq", label: "分红频率", type: "select", options: ["每天", "每周", "每月", "每笔交易"], value: "每周" },
+            { key: "divRatio", label: "分红分配比例 (%)", type: "range", min: 10, max: 100, step: 5, value: 80 },
+            { key: "snapshotMode", label: "快照模式", type: "select", options: ["实时快照", "周期快照", "累积燃烧量"], value: "累积燃烧量" },
+          ]
+        },
+        {
+          id: "timeWeight",
+          icon: "⏱️",
+          name: "持币时间加权",
+          en: "Time-Weighted Holding",
+          desc: "持币时间越长，权重越高，分红收益按时间加权分配",
+          color: "#ffa500",
+          fields: [
+            { key: "tokenAddr", label: "代币合约地址", type: "text", placeholder: "0x...", value: "" },
+            { key: "weightCurve", label: "权重增长曲线", type: "select", options: ["线性增长", "指数增长", "阶梯式增长", "对数增长"], value: "线性增长" },
+            { key: "maxWeight", label: "最大权重倍数", type: "number", placeholder: "5", step: "0.5", value: "" },
+            { key: "maxWeightDays", label: "达到最大权重天数", type: "number", placeholder: "90", value: "" },
+            { key: "divToken", label: "分红代币地址", type: "text", placeholder: "0x...", value: "" },
+            { key: "divFreq", label: "分红频率", type: "select", options: ["每天", "每周", "每月"], value: "每周" },
+          ]
+        },
+        {
+          id: "limitBuy",
+          icon: "🛡️",
+          name: "开盘限购",
+          en: "Opening Purchase Limit",
+          desc: "开盘期间限制单笔购买量和单钱包购买量，防巨鲸控盘",
+          color: "#ff6347",
+          fields: [
+            { key: "tokenAddr", label: "代币合约地址", type: "text", placeholder: "0x...", value: "" },
+            { key: "limitDuration", label: "限购持续时间 (分钟)", type: "number", placeholder: "30", value: "" },
+            { key: "maxTxAmount", label: "单笔最大购买量 (BNB)", type: "number", placeholder: "0.5", step: "0.1", value: "" },
+            { key: "maxPerWallet", label: "单钱包最大购买量 (BNB)", type: "number", placeholder: "1", step: "0.1", value: "" },
+            { key: "antiBot", label: "反机器人检测", type: "toggle", value: true },
+            { key: "blockDelay", label: "区块延迟确认数", type: "range", min: 0, max: 10, step: 1, value: 2 },
+          ]
+        },
+        {
+          id: "lpStake",
+          icon: "💧",
+          name: "LP 质押分红",
+          en: "LP Staking Dividends",
+          desc: "质押 LP 代币赚取分红收益，激励流动性提供者",
+          color: "#1e90ff",
+          fields: [
+            { key: "lpAddr", label: "LP 代币地址", type: "text", placeholder: "0x...", value: "" },
+            { key: "rewardToken", label: "奖励代币地址", type: "text", placeholder: "0x...", value: "" },
+            { key: "apr", label: "年化收益率 (%)", type: "number", placeholder: "80", step: "1", value: "" },
+            { key: "lockPeriod", label: "锁仓周期 (天)", type: "number", placeholder: "7", value: "" },
+            { key: "rewardPool", label: "奖励池总量", type: "number", placeholder: "50000000", value: "" },
+            { key: "earlyUnstake", label: "允许提前解除质押", type: "toggle", value: false },
+            { key: "penaltyPct", label: "提前解除罚金 (%)", type: "range", min: 0, max: 50, step: 5, value: 15 },
+          ]
+        },
+        {
+          id: "tokenStake",
+          icon: "🔒",
+          name: "本币质押分红",
+          en: "Token Staking Dividends",
+          desc: "质押项目本币获取分红，锁仓减少流通量",
+          color: "#32cd32",
+          fields: [
+            { key: "tokenAddr", label: "代币合约地址", type: "text", placeholder: "0x...", value: "" },
+            { key: "divToken", label: "分红代币地址", type: "text", placeholder: "0x... (USDT/BNB等)", value: "" },
+            { key: "apr", label: "年化收益率 (%)", type: "number", placeholder: "60", step: "1", value: "" },
+            { key: "minStake", label: "最低质押量", type: "number", placeholder: "10000", value: "" },
+            { key: "lockPeriod", label: "锁仓周期 (天)", type: "number", placeholder: "14", value: "" },
+            { key: "divFreq", label: "分红频率", type: "select", options: ["每天", "每周", "每月"], value: "每周" },
+            { key: "compound", label: "自动复利", type: "toggle", value: false },
+          ]
+        },
+        {
+          id: "blackhole",
+          icon: "🕳️",
+          name: "黑洞排行榜燃烧分红",
+          en: "Blackhole Leaderboard Burn",
+          desc: "燃烧代币上排行榜，按燃烧量排名分配分红奖励",
+          color: "#8b00ff",
+          fields: [
+            { key: "tokenAddr", label: "代币合约地址", type: "text", placeholder: "0x...", value: "" },
+            { key: "divToken", label: "分红代币地址", type: "text", placeholder: "0x...", value: "" },
+            { key: "leaderboardSize", label: "排行榜名额", type: "number", placeholder: "100", value: "" },
+            { key: "minBurn", label: "上榜最低燃烧量", type: "number", placeholder: "50000", value: "" },
+            { key: "distMode", label: "分红分配模式", type: "select", options: ["按比例分配", "固定梯度分配", "排名权重分配"], value: "按比例分配" },
+            { key: "divFreq", label: "结算周期", type: "select", options: ["每天", "每周", "每月"], value: "每周" },
+            { key: "bonusTop", label: "TOP3 额外奖励 (%)", type: "range", min: 0, max: 50, step: 5, value: 15 },
+          ]
+        },
+        {
+          id: "nftDiv",
+          icon: "🖼️",
+          name: "NFT 分红",
+          en: "NFT Dividends",
+          desc: "持有指定 NFT 即可参与分红，NFT 等级决定分红权重",
+          color: "#ff1493",
+          fields: [
+            { key: "nftAddr", label: "NFT 合约地址", type: "text", placeholder: "0x...", value: "" },
+            { key: "divToken", label: "分红代币地址", type: "text", placeholder: "0x...", value: "" },
+            { key: "divPool", label: "分红池总量", type: "number", placeholder: "100000", value: "" },
+            { key: "tierMode", label: "等级权重模式", type: "select", options: ["单一级别", "三级权重", "五级权重", "稀有度权重"], value: "三级权重" },
+            { key: "divFreq", label: "分红频率", type: "select", options: ["每天", "每周", "每月"], value: "每周" },
+            { key: "requireHolding", label: "需持续持有 NFT", type: "toggle", value: true },
+            { key: "minHoldDays", label: "最低持有天数", type: "number", placeholder: "7", value: "" },
+          ]
+        },
+      ];
+
+      let currentMode = MODES[0].id;
+
+      // ─── 渲染左侧模式列表 ───
+      function renderModes() {
+        const el = document.getElementById("modesList");
+        el.innerHTML = MODES.map(m => `
+          <button class="lp-mode-item ${m.id === currentMode ? 'active' : ''}" data-mode="${m.id}" onclick="selectMode('${m.id}')">
+            <span class="lp-mode-icon" style="background: ${m.color}22; border-color: ${m.color}55;">${m.icon}</span>
+            <span class="lp-mode-info">
+              <span class="lp-mode-name">${m.name}</span>
+              <span class="lp-mode-en">${m.en}</span>
+            </span>
+            <span class="lp-mode-arrow">›</span>
+          </button>
+        `).join("");
+      }
+
+      // ─── 渲染右侧配置面板 ───
+      function renderConfig() {
+        const mode = MODES.find(m => m.id === currentMode);
+        const el = document.getElementById("configPanel");
+
+        const fieldsHtml = mode.fields.map(f => {
+          let input = "";
+          if (f.type === "text") {
+            input = `<input type="text" class="lp-input" placeholder="${f.placeholder || ''}" value="${f.value || ''}" />`;
+          } else if (f.type === "number") {
+            input = `<input type="number" class="lp-input" placeholder="${f.placeholder || ''}" ${f.step ? `step="${f.step}"` : ''} value="${f.value || ''}" />`;
+          } else if (f.type === "textarea") {
+            input = `<textarea class="lp-input lp-textarea" placeholder="${f.placeholder || ''}" rows="5">${f.value || ''}</textarea>`;
+          } else if (f.type === "select") {
+            input = `<select class="lp-input lp-select">${f.options.map(o => `<option ${o === f.value ? 'selected' : ''}>${o}</option>`).join("")}</select>`;
+          } else if (f.type === "range") {
+            input = `
+              <div class="lp-range-wrap">
+                <input type="range" class="lp-range" min="${f.min}" max="${f.max}" step="${f.step}" value="${f.value}" oninput="this.nextElementSibling.textContent = this.value + '%'" />
+                <span class="lp-range-val">${f.value}%</span>
+              </div>
+            `;
+          } else if (f.type === "toggle") {
+            input = `
+              <label class="lp-toggle">
+                <input type="checkbox" ${f.value ? 'checked' : ''} />
+                <span class="lp-toggle-slider"></span>
+              </label>
+            `;
+          }
+          return `
+            <div class="lp-field">
+              <label class="lp-field-label">${f.label}</label>
+              ${input}
+            </div>
+          `;
+        }).join("");
+
+        el.innerHTML = `
+          <div class="lp-config-head">
+            <div class="lp-config-icon" style="background: ${mode.color}22; border-color: ${mode.color}66;">${mode.icon}</div>
+            <div class="lp-config-title-wrap">
+              <h2 class="lp-config-title">${mode.name}</h2>
+              <p class="lp-config-en">${mode.en}</p>
+            </div>
+            <div class="lp-config-tag" style="border-color: ${mode.color}66; color: ${mode.color};">MODE</div>
+          </div>
+          <p class="lp-config-desc">${mode.desc}</p>
+          <div class="lp-fields">
+            ${fieldsHtml}
+          </div>
+          <div class="lp-config-foot">
+            <div class="lp-warn">
+              <span class="lp-warn-icon">⚠️</span>
+              <span>需等待官方平台币上线后可以使用，当前为预览模式，配置参数可调整预览，但不会真正部署。</span>
+            </div>
+            <button class="lp-launch-btn" onclick="tryLaunch('${mode.id}')">
+              <span class="lp-launch-icon">🚀</span>
+              <span>发射</span>
+              <span class="lp-launch-glow"></span>
+            </button>
+          </div>
+        `;
+      }
+
+      // ─── 选择模式 ───
+      function selectMode(id) {
+        currentMode = id;
+        renderModes();
+        renderConfig();
+      }
+
+      // ─── 发射（暂不执行）───
+      function tryLaunch(modeId) {
+        const mode = MODES.find(m => m.id === modeId);
+        const desc = `「${mode.name}」模式即将开放，届时你将能够使用以上配置参数一键部署到 BSC 链上。`;
+        document.getElementById("modalDesc").textContent = desc;
+
+        // 收集当前配置
+        const configEl = document.getElementById("configPanel");
+        const inputs = configEl.querySelectorAll(".lp-input, .lp-range, .lp-toggle input");
+        const modeFields = mode.fields;
+        let configHtml = '<div class="lp-modal-config-title">当前配置预览：</div>';
+        modeFields.forEach((f, i) => {
+          let val = "";
+          const fieldEl = configEl.querySelectorAll(".lp-field")[i];
+          if (f.type === "range") {
+            val = fieldEl.querySelector(".lp-range-val").textContent;
+          } else if (f.type === "toggle") {
+            val = fieldEl.querySelector("input[type=checkbox]").checked ? "✅ 开启" : "❌ 关闭";
+          } else if (f.type === "select") {
+            val = fieldEl.querySelector("select").value;
+          } else {
+            val = fieldEl.querySelector("input, textarea").value || "(未填写)";
+          }
+          configHtml += `<div class="lp-modal-config-row"><span>${f.label}</span><strong>${val}</strong></div>`;
+        });
+        document.getElementById("modalConfig").innerHTML = configHtml;
+
+        document.getElementById("modalOverlay").classList.add("show");
+      }
+
+      function closeModal() {
+        document.getElementById("modalOverlay").classList.remove("show");
+      }
+
+      // ─── 粒子背景 ───
+      function initBg() {
+        const canvas = document.getElementById("bgCanvas");
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        let w, h;
+        function resize() { w = canvas.width = innerWidth; h = canvas.height = innerHeight; }
+        resize();
+        addEventListener("resize", resize);
+
+        const particles = [];
+        for (let i = 0; i < 50; i++) {
+          particles.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            r: Math.random() * 2 + 0.5,
+            vx: (Math.random() - 0.5) * 0.3,
+            vy: (Math.random() - 0.5) * 0.3,
+            color: Math.random() > 0.5 ? "255,58,26" : "255,215,0",
+            a: Math.random() * 0.3 + 0.05,
+          });
+        }
+
+        function loop() {
+          ctx.clearRect(0, 0, w, h);
+          particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+            if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${p.color},${p.a})`;
+            ctx.fill();
+          });
+          requestAnimationFrame(loop);
+        }
+        loop();
+      }
+
+      // ─── 初始化 ───
+      renderModes();
+      renderConfig();
+      initBg();
+    </script>
+  </body>
+</html>

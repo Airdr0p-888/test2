@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>杀零拳头 · 代币广场</title>
+    <link rel="stylesheet" href="./token-plaza.css" />
+  </head>
+  <body>
+    <canvas id="bgCanvas"></canvas>
+
+    <!-- 顶部导航 -->
+    <header class="lp-nav">
+      <div class="lp-nav-inner">
+        <a href="./index.html" class="lp-back">
+          <span class="lp-back-arrow">←</span>
+          <span>返回官网</span>
+        </a>
+        <div class="lp-brand">
+          <img src="./touxiao.png" alt="杀零拳头" class="lp-brand-logo" />
+          <div class="lp-brand-text">
+            <strong>代币广场</strong>
+            <span>TOKEN PLAZA</span>
+          </div>
+        </div>
+        <a href="./launchpad.html" class="lp-launch-link">🚀 发射台</a>
+      </div>
+    </header>
+
+    <!-- 手机端底部导航 -->
+    <nav class="bottom-tab-nav">
+      <a href="./index.html" class="btn-item">
+        <span class="btn-ico">🏠</span>
+        <span class="btn-txt">官网</span>
+      </a>
+      <a href="./token-plaza.html" class="btn-item btn-plaza active">
+        <span class="btn-ico">₿</span>
+        <span class="btn-txt">广场</span>
+      </a>
+      <a href="./launchpad.html" class="btn-item btn-launch">
+        <span class="btn-ico">🚀</span>
+        <span class="btn-txt">发射台</span>
+      </a>
+      <a href="./mint.html" class="btn-item btn-mint">
+        <span class="btn-ico">🥊</span>
+        <span class="btn-txt">Mint</span>
+      </a>
+    </nav>
+
+    <main class="tp-main">
+
+      <!-- 页面标题 -->
+      <div class="tp-header">
+        <div class="tp-header-glow"></div>
+        <h1 class="tp-title">
+          <span class="tp-title-icon">₿</span>
+          <span>代币广场</span>
+        </h1>
+        <p class="tp-subtitle">浏览全部代币 · 追踪 Mint 进度 · 发现已发射项目</p>
+        <div class="tp-status-bar">
+          <div class="tp-status-item">
+            <span class="tp-dot tp-dot-live"></span>
+            <span>BSC Chain</span>
+          </div>
+          <div class="tp-status-item">
+            <span class="tp-dot tp-dot-gold"></span>
+            <span id="totalTokenCount">-- 个代币</span>
+          </div>
+          <div class="tp-status-item">
+            <span class="tp-dot tp-dot-red"></span>
+            <span id="liveMintCount">-- 正在 Mint</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 统计卡片 -->
+      <div class="tp-stats-row">
+        <div class="tp-stat-card">
+          <div class="tp-stat-icon">₿</div>
+          <div class="tp-stat-val" id="statTotal">0</div>
+          <div class="tp-stat-label">全部代币</div>
+        </div>
+        <div class="tp-stat-card">
+          <div class="tp-stat-icon">🔥</div>
+          <div class="tp-stat-val" id="statMinting">0</div>
+          <div class="tp-stat-label">正在 Mint</div>
+        </div>
+        <div class="tp-stat-card">
+          <div class="tp-stat-icon">✅</div>
+          <div class="tp-stat-val" id="statLaunched">0</div>
+          <div class="tp-stat-label">已发射</div>
+        </div>
+        <div class="tp-stat-card">
+          <div class="tp-stat-icon">👥</div>
+          <div class="tp-stat-val" id="statHolders">0</div>
+          <div class="tp-stat-label">总持币者</div>
+        </div>
+      </div>
+
+      <!-- 筛选 Tab -->
+      <div class="tp-tabs">
+        <button class="tp-tab active" data-filter="all" onclick="filterTokens('all', this)">
+          📋 全部
+        </button>
+        <button class="tp-tab" data-filter="minting" onclick="filterTokens('minting', this)">
+          🔥 正在 Mint
+        </button>
+        <button class="tp-tab" data-filter="launched" onclick="filterTokens('launched', this)">
+          ✅ 已发射
+        </button>
+      </div>
+
+      <!-- 代币列表 -->
+      <div class="tp-list" id="tokenList">
+        <!-- JS 动态渲染 -->
+      </div>
+
+      <!-- 空状态 -->
+      <div class="tp-empty" id="tpEmpty" style="display:none;">
+        <div class="tp-empty-icon">₿</div>
+        <h3>暂无代币</h3>
+        <p>当前筛选条件下没有代币，去发射台创建你的代币吧！</p>
+        <a href="./launchpad.html" class="tp-empty-btn">🚀 前往发射台</a>
+      </div>
+
+    </main>
+
+    <!-- 代币详情弹窗 -->
+    <div class="tp-modal-overlay" id="tpModal" style="display:none;">
+      <div class="tp-modal">
+        <button class="tp-modal-close" onclick="closeTokenModal()">✕</button>
+        <div class="tp-modal-header" id="tpModalHeader"></div>
+        <div class="tp-modal-body" id="tpModalBody"></div>
+        <div class="tp-modal-footer">
+          <button class="tp-modal-btn" onclick="closeTokenModal()">关闭</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ── 代币数据（示例）──
+      const TOKENS = [
+        {
+          name: "杀零拳头",
+          symbol: "KZF",
+          status: "launched",
+          mintPrice: "0.001 BNB",
+          totalSupply: "1,000,000,000",
+          minted: "1,000,000,000",
+          mintPercent: 100,
+          holders: 1286,
+          contract: "0xDEF...",
+          launchDate: "2026-06-28",
+          description: "杀零拳头 —— 拳拳到肉，零容忍。BSC 链上 MEME 代币。"
+        },
+        {
+          name: "BTC 2.0",
+          symbol: "BTC2",
+          status: "launched",
+          mintPrice: "0.0005 BNB",
+          totalSupply: "21,000,000",
+          minted: "21,000,000",
+          mintPercent: 100,
+          holders: 892,
+          contract: "0xABC...",
+          launchDate: "2026-06-25",
+          description: "Bitcoin 2.0 —— 经典再现，社区驱动。"
+        },
+        {
+          name: "Doge King",
+          symbol: "DGK",
+          status: "minting",
+          mintPrice: "0.0003 BNB",
+          totalSupply: "1,000,000,000,000",
+          minted: "420,000,000,000",
+          mintPercent: 42,
+          holders: 315,
+          contract: "0x789...",
+          launchDate: "2026-06-30",
+          description: "Doge King —— 还在 Mint 中，快来参与！"
+        },
+        {
+          name: "Shib Meta",
+          symbol: "SBM",
+          status: "minting",
+          mintPrice: "0.0001 BNB",
+          totalSupply: "500,000,000,000",
+          minted: "125,000,000,000",
+          mintPercent: 25,
+          holders: 97,
+          contract: "0x456...",
+          launchDate: "2026-07-01",
+          description: "Shib Meta —— 元宇宙柴犬，Mint 进行中。"
+        }
+      ];
+
+      // ── 渲染列表 ──
+      function renderTokens(filter = "all") {
+        const list = document.getElementById("tokenList");
+        const empty = document.getElementById("tpEmpty");
+        const filtered = filter === "all"
+          ? TOKENS
+          : TOKENS.filter(t => t.status === filter);
+
+        if (filtered.length === 0) {
+          list.innerHTML = "";
+          empty.style.display = "flex";
+          return;
+        }
+        empty.style.display = "none";
+
+        list.innerHTML = filtered.map(t => `
+          <div class="tp-card ${t.status}">
+            <div class="tp-card-badge ${t.status}">
+              ${t.status === "minting" ? "🔥 Mint中" : "✅ 已发射"}
+            </div>
+            <div class="tp-card-header">
+              <div class="tp-card-avatar">${t.symbol.slice(0, 2)}</div>
+              <div class="tp-card-info">
+                <h3>${t.name}</h3>
+                <span class="tp-card-symbol">${t.symbol}</span>
+              </div>
+            </div>
+            <div class="tp-card-stats">
+              <div class="tp-card-stat">
+                <span class="tp-cs-label">Mint 价</span>
+                <span class="tp-cs-val">${t.mintPrice}</span>
+              </div>
+              <div class="tp-card-stat">
+                <span class="tp-cs-label">总量</span>
+                <span class="tp-cs-val">${t.totalSupply}</span>
+              </div>
+              <div class="tp-card-stat">
+                <span class="tp-cs-label">已 Mint</span>
+                <div class="tp-progress-bar">
+                  <div class="tp-progress-fill ${t.status}" style="width:${t.mintPercent}%"></div>
+                </div>
+                <span class="tp-cs-val">${t.mintPercent}%</span>
+              </div>
+              <div class="tp-card-stat">
+                <span class="tp-cs-label">持币者</span>
+                <span class="tp-cs-val">${t.holders.toLocaleString()}</span>
+              </div>
+            </div>
+            <button class="tp-card-btn" onclick="openTokenModal('${t.symbol}')">
+              查看详情 →
+            </button>
+          </div>
+        `).join("");
+      }
+
+      // ── 筛选 ──
+      function filterTokens(filter, btn) {
+        document.querySelectorAll(".tp-tab").forEach(t => t.classList.remove("active"));
+        btn.classList.add("active");
+        renderTokens(filter);
+      }
+
+      // ── 弹窗 ──
+      function openTokenModal(symbol) {
+        const t = TOKENS.find(x => x.symbol === symbol);
+        if (!t) return;
+
+        document.getElementById("tpModalHeader").innerHTML = `
+          <div class="tp-modal-avatar">${t.symbol.slice(0, 2)}</div>
+          <div>
+            <h2>${t.name} <span class="tp-modal-symbol">${t.symbol}</span></h2>
+            <span class="tp-card-badge ${t.status}">${t.status === "minting" ? "🔥 Mint中" : "✅ 已发射"}</span>
+          </div>
+        `;
+        document.getElementById("tpModalBody").innerHTML = `
+          <div class="tp-modal-info">
+            <div class="tp-mi-row">
+              <span class="tp-mi-label">Mint 价格</span>
+              <span class="tp-mi-val">${t.mintPrice}</span>
+            </div>
+            <div class="tp-mi-row">
+              <span class="tp-mi-label">总供应量</span>
+              <span class="tp-mi-val">${t.totalSupply}</span>
+            </div>
+            <div class="tp-mi-row">
+              <span class="tp-mi-label">已 Mint</span>
+              <span class="tp-mi-val">${t.minted}（${t.mintPercent}%）</span>
+            </div>
+            <div class="tp-mi-row">
+              <span class="tp-mi-label">持币人数</span>
+              <span class="tp-mi-val">${t.holders.toLocaleString()}</span>
+            </div>
+            <div class="tp-mi-row">
+              <span class="tp-mi-label">合约地址</span>
+              <span class="tp-mi-val contract-addr">${t.contract}</span>
+            </div>
+            <div class="tp-mi-row">
+              <span class="tp-mi-label">发射日期</span>
+              <span class="tp-mi-val">${t.launchDate}</span>
+            </div>
+            <div class="tp-mi-row">
+              <span class="tp-mi-label">简介</span>
+              <span class="tp-mi-val">${t.description}</span>
+            </div>
+          </div>
+        `;
+        document.getElementById("tpModal").style.display = "flex";
+      }
+
+      function closeTokenModal() {
+        document.getElementById("tpModal").style.display = "none";
+      }
+
+      // ── 背景粒子 ──
+      const canvas = document.getElementById("bgCanvas");
+      const ctx = canvas.getContext("2d");
+      let particles = [];
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      function createParticles() {
+        particles = [];
+        const count = Math.floor(window.innerWidth / 18);
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 1.8 + 0.5,
+            dx: (Math.random() - 0.5) * 0.25,
+            dy: (Math.random() - 0.5) * 0.25,
+            alpha: Math.random() * 0.35 + 0.1,
+            color: Math.random() > 0.6 ? "#ffd700" : "#ff4444"
+          });
+        }
+      }
+      function drawParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = p.alpha;
+          ctx.fill();
+          ctx.globalAlpha = 1;
+          p.x += p.dx; p.y += p.dy;
+          if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+          if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+        });
+        requestAnimationFrame(drawParticles);
+      }
+      window.addEventListener("resize", () => { resizeCanvas(); createParticles(); });
+      resizeCanvas(); createParticles(); drawParticles();
+
+      // ── 初始化 ──
+      renderTokens();
+      document.getElementById("totalTokenCount").textContent = TOKENS.length + " 个代币";
+      document.getElementById("liveMintCount").textContent = TOKENS.filter(t => t.status === "minting").length + " 正在 Mint";
+      document.getElementById("statTotal").textContent = TOKENS.length;
+      document.getElementById("statMinting").textContent = TOKENS.filter(t => t.status === "minting").length;
+      document.getElementById("statLaunched").textContent = TOKENS.filter(t => t.status === "launched").length;
+      document.getElementById("statHolders").textContent = TOKENS.reduce((s, t) => s + t.holders, 0).toLocaleString();
+    </script>
+  </body>
+</html>
