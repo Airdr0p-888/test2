@@ -56,7 +56,7 @@
           <span class="tp-title-icon">₿</span>
           <span>代币广场</span>
         </h1>
-        <p class="tp-subtitle">浏览全部代币 · 追踪 Mint 进度 · 发现已发射项目</p>
+        <p class="tp-subtitle">基于 Ave.ai 实时数据 · BSC 链上代币追踪</p>
         <div class="tp-status-bar">
           <div class="tp-status-item">
             <span class="tp-dot tp-dot-live"></span>
@@ -64,63 +64,67 @@
           </div>
           <div class="tp-status-item">
             <span class="tp-dot tp-dot-gold"></span>
-            <span id="totalTokenCount">-- 个代币</span>
+            <span id="totalTokenCount">加载中...</span>
           </div>
           <div class="tp-status-item">
-            <span class="tp-dot tp-dot-red"></span>
-            <span id="liveMintCount">-- 正在 Mint</span>
+            <span class="tp-dot tp-dot-api"></span>
+            <span id="apiStatus">Ave.ai 已连接</span>
           </div>
         </div>
+      </div>
+
+      <!-- 搜索栏 -->
+      <div class="tp-search-bar">
+        <input type="text" id="searchInput" placeholder="输入合约地址搜索代币..." />
+        <button class="tp-search-btn" onclick="searchByAddress()">🔍 搜索</button>
       </div>
 
       <!-- 统计卡片 -->
       <div class="tp-stats-row">
         <div class="tp-stat-card">
           <div class="tp-stat-icon">₿</div>
-          <div class="tp-stat-val" id="statTotal">0</div>
-          <div class="tp-stat-label">全部代币</div>
+          <div class="tp-stat-val" id="statTotal">--</div>
+          <div class="tp-stat-label">显示代币</div>
         </div>
         <div class="tp-stat-card">
-          <div class="tp-stat-icon">🔥</div>
-          <div class="tp-stat-val" id="statMinting">0</div>
-          <div class="tp-stat-label">正在 Mint</div>
+          <div class="tp-stat-icon">💰</div>
+          <div class="tp-stat-val" id="statPrice">--</div>
+          <div class="tp-stat-label">当前价格</div>
         </div>
         <div class="tp-stat-card">
-          <div class="tp-stat-icon">✅</div>
-          <div class="tp-stat-val" id="statLaunched">0</div>
-          <div class="tp-stat-label">已发射</div>
+          <div class="tp-stat-icon">📊</div>
+          <div class="tp-stat-val" id="statMcap">--</div>
+          <div class="tp-stat-label">市值</div>
         </div>
         <div class="tp-stat-card">
           <div class="tp-stat-icon">👥</div>
-          <div class="tp-stat-val" id="statHolders">0</div>
-          <div class="tp-stat-label">总持币者</div>
+          <div class="tp-stat-val" id="statHolders">--</div>
+          <div class="tp-stat-label">持币者</div>
         </div>
-      </div>
-
-      <!-- 筛选 Tab -->
-      <div class="tp-tabs">
-        <button class="tp-tab active" data-filter="all" onclick="filterTokens('all', this)">
-          📋 全部
-        </button>
-        <button class="tp-tab" data-filter="minting" onclick="filterTokens('minting', this)">
-          🔥 正在 Mint
-        </button>
-        <button class="tp-tab" data-filter="launched" onclick="filterTokens('launched', this)">
-          ✅ 已发射
-        </button>
       </div>
 
       <!-- 代币列表 -->
       <div class="tp-list" id="tokenList">
         <!-- JS 动态渲染 -->
+        <div class="tp-loading" id="loadingState">
+          <div class="tp-spinner"></div>
+          <span>正在从 Ave.ai 加载实时数据...</span>
+        </div>
       </div>
 
       <!-- 空状态 -->
       <div class="tp-empty" id="tpEmpty" style="display:none;">
         <div class="tp-empty-icon">₿</div>
-        <h3>暂无代币</h3>
-        <p>当前筛选条件下没有代币，去发射台创建你的代币吧！</p>
-        <a href="./launchpad.html" class="tp-empty-btn">🚀 前往发射台</a>
+        <h3>未找到代币</h3>
+        <p>该合约地址在 BSC 链上未找到匹配的代币，请检查地址是否正确。</p>
+      </div>
+
+      <!-- 错误状态 -->
+      <div class="tp-error" id="tpError" style="display:none;">
+        <div class="tp-error-icon">⚠️</div>
+        <h3>数据加载失败</h3>
+        <p id="errorMsg">无法连接到 Ave.ai API，请稍后重试。</p>
+        <button class="tp-retry-btn" onclick="loadDefaultToken()">🔄 重试</button>
       </div>
 
     </main>
@@ -132,174 +136,347 @@
         <div class="tp-modal-header" id="tpModalHeader"></div>
         <div class="tp-modal-body" id="tpModalBody"></div>
         <div class="tp-modal-footer">
+          <a id="modalAveLink" href="#" target="_blank" class="tp-modal-link" style="display:none;">🔗 查看 Ave.ai 详情</a>
           <button class="tp-modal-btn" onclick="closeTokenModal()">关闭</button>
         </div>
       </div>
     </div>
 
     <script>
-      // ── 代币数据（示例）──
-      const TOKENS = [
-        {
-          name: "杀零拳头",
-          symbol: "KZF",
-          status: "launched",
-          mintPrice: "0.001 BNB",
-          totalSupply: "1,000,000,000",
-          minted: "1,000,000,000",
-          mintPercent: 100,
-          holders: 1286,
-          contract: "0xDEF...",
-          launchDate: "2026-06-28",
-          description: "杀零拳头 —— 拳拳到肉，零容忍。BSC 链上 MEME 代币。"
-        },
-        {
-          name: "BTC 2.0",
-          symbol: "BTC2",
-          status: "launched",
-          mintPrice: "0.0005 BNB",
-          totalSupply: "21,000,000",
-          minted: "21,000,000",
-          mintPercent: 100,
-          holders: 892,
-          contract: "0xABC...",
-          launchDate: "2026-06-25",
-          description: "Bitcoin 2.0 —— 经典再现，社区驱动。"
-        },
-        {
-          name: "Doge King",
-          symbol: "DGK",
-          status: "minting",
-          mintPrice: "0.0003 BNB",
-          totalSupply: "1,000,000,000,000",
-          minted: "420,000,000,000",
-          mintPercent: 42,
-          holders: 315,
-          contract: "0x789...",
-          launchDate: "2026-06-30",
-          description: "Doge King —— 还在 Mint 中，快来参与！"
-        },
-        {
-          name: "Shib Meta",
-          symbol: "SBM",
-          status: "minting",
-          mintPrice: "0.0001 BNB",
-          totalSupply: "500,000,000,000",
-          minted: "125,000,000,000",
-          mintPercent: 25,
-          holders: 97,
-          contract: "0x456...",
-          launchDate: "2026-07-01",
-          description: "Shib Meta —— 元宇宙柴犬，Mint 进行中。"
+      // ── Ave.ai 配置 ──
+      const AVE_API_KEY = "mwQOPupoqBczQqJVJUyVWMZKV7WVVXwQ2lm60as8dRLCIhm64MJe06gCZD4Kva1L";
+      const AVE_BASE_URL = "https://prod.ave-api.com/v2";
+      const DEFAULT_CONTRACT = "0xE628bdB19c744f2225d2D18f78f050265e600000";
+      const DEFAULT_CHAIN = "bsc";
+
+      // ── 当前数据 ──
+      let currentTokens = [];
+      let currentFilter = "all";
+
+      // ── 工具函数：格式化数字 ──
+      function formatNumber(num, decimals = 0) {
+        const n = parseFloat(num);
+        if (!n && n !== 0) return "--";
+        if (n === 0) return "0";
+        if (n >= 1e9) return (n / 1e9).toFixed(2) + " B";
+        if (n >= 1e6) return (n / 1e6).toFixed(2) + " M";
+        if (n >= 1e3) return n.toLocaleString("en-US", { maximumFractionDigits: decimals });
+        if (n < 0.01 && n > 0) return "< 0.01";
+        return n.toFixed(decimals);
+      }
+
+      function formatSupply(rawSupply, decimal = 18) {
+        const divisor = Math.pow(10, decimal);
+        const num = parseFloat(rawSupply) / divisor;
+        return formatNumber(num, 2);
+      }
+
+      function formatDate(timestamp) {
+        if (!timestamp) return "--";
+        return new Date(timestamp * 1000).toLocaleDateString("zh-CN", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit"
+        });
+      }
+
+      function shortenAddr(addr) {
+        if (!addr || addr.length <= 12) return addr || "--";
+        return addr.slice(0, 6) + "..." + addr.slice(-4);
+      }
+
+      function bscscanLink(addr) {
+        return `https://bscscan.com/token/${addr}`;
+      }
+
+      function aveLink(addr) {
+        return `https://ave.ai/token/${addr}-bsc`;
+      }
+
+      // ── 状态颜色 ──
+      function getStatusClass(tokenData) {
+        // 根据是否有交易量和价格来判断是否已上线
+        const price = parseFloat(tokenData.current_price_usd);
+        const volume = parseFloat(tokenData.tx_volume_u_24h);
+        const holders = parseInt(tokenData.holders);
+
+        if (holders > 10 && (price > 0 || volume > 0)) return "launched";
+        return "minting";
+      }
+
+      function getStatusLabel(tokenData) {
+        const cls = getStatusClass(tokenData);
+        return cls === "launched" ? "✅ 已上线" : "🔥 Mint中";
+      }
+
+      function getRiskLabel(score) {
+        const s = parseInt(score);
+        if (s >= 80) return { text: "高风险", color: "#ff4444" };
+        if (s >= 50) return { text: "中等风险", color: "#ff9800" };
+        if (s > 0) return { text: "较低风险", color: "#00e676" };
+        return { text: "未知", color: "#888" };
+      }
+
+      // ── 调用 Ave.ai API ──
+      async function fetchTokenByContract(address) {
+        try {
+          const resp = await fetch(
+            `${AVE_BASE_URL}/tokens?keyword=${address}&chain=${DEFAULT_CHAIN}`,
+            {
+              headers: {
+                "X-API-KEY": AVE_API_KEY,
+                "Content-Type": "application/json"
+              }
+            }
+          );
+          const json = await resp.json();
+          if (json.status === 1 && json.data && json.data.length > 0) {
+            return json.data; // 返回数组
+          }
+          return [];
+        } catch (err) {
+          console.error("Ave API Error:", err);
+          throw err;
         }
-      ];
+      }
 
-      // ── 渲染列表 ──
-      function renderTokens(filter = "all") {
-        const list = document.getElementById("tokenList");
-        const empty = document.getElementById("tpEmpty");
-        const filtered = filter === "all"
-          ? TOKENS
-          : TOKENS.filter(t => t.status === filter);
-
-        if (filtered.length === 0) {
-          list.innerHTML = "";
-          empty.style.display = "flex";
-          return;
+      async function fetchTokenDetail(address) {
+        try {
+          const resp = await fetch(
+            `${AVE_BASE_URL}/tokens/${address.toLowerCase()}-${DEFAULT_CHAIN}`,
+            {
+              headers: {
+                "X-API-KEY": AVE_API_KEY,
+                "Content-Type": "application/json"
+              }
+            }
+          );
+          const json = await resp.json();
+          if (json.status === 1 && json.data) {
+            return json.data; // 返回完整对象 {token, pairs, is_audited}
+          }
+          return null;
+        } catch (err) {
+          console.error("Ave Detail Error:", err);
+          return null;
         }
-        empty.style.display = "none";
+      }
 
-        list.innerHTML = filtered.map(t => `
-          <div class="tp-card ${t.status}">
-            <div class="tp-card-badge ${t.status}">
-              ${t.status === "minting" ? "🔥 Mint中" : "✅ 已发射"}
-            </div>
+      // ── 渲染代币卡片 ──
+      function renderCard(t) {
+        const status = getStatusClass(t);
+        const statusLabel = getStatusLabel(t);
+        const risk = getRiskLabel(t.risk_score);
+        const supply = formatSupply(t.total, t.decimal || 18);
+        const price = parseFloat(t.current_price_usd) > 0 ? `$${formatNumber(t.current_price_usd, 8)}` : "暂无报价";
+        const mcap = parseFloat(t.market_cap) > 0 ? `$${formatNumber(t.market_cap)}` : "暂无";
+        const volume = parseFloat(t.tx_volume_u_24h) > 0 ? `$${formatNumber(t.tx_volume_u_24h)}` : "--";
+
+        // 用名称前两个字做头像
+        const avatarText = t.symbol && t.symbol.length >= 2 ? t.symbol.slice(0, 2) : (t.name ? t.name.slice(0, 2) : "?");
+
+        return `
+          <div class="tp-card ${status}" data-contract="${t.token}">
+            <div class="tp-card-badge ${status}">${statusLabel}</div>
+            <div class="tp-risk-badge" style="--risk-color:${risk.color}">${risk.text}</div>
             <div class="tp-card-header">
-              <div class="tp-card-avatar">${t.symbol.slice(0, 2)}</div>
+              ${t.logo_url
+                ? `<img src="${t.logo_url}" class="tp-card-avatar-img" alt="${t.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/><div class="tp-card-avatar">${avatarText}</div>`
+                : `<div class="tp-card-avatar">${avatarText}</div>`
+              }
               <div class="tp-card-info">
-                <h3>${t.name}</h3>
-                <span class="tp-card-symbol">${t.symbol}</span>
+                <h3>${t.name || "Unknown"}</h3>
+                <span class="tp-card-symbol">${t.symbol || ""}</span>
               </div>
             </div>
             <div class="tp-card-stats">
               <div class="tp-card-stat">
-                <span class="tp-cs-label">Mint 价</span>
-                <span class="tp-cs-val">${t.mintPrice}</span>
+                <span class="tp-cs-label">价格 (USD)</span>
+                <span class="tp-cs-val tp-price-val">${price}</span>
               </div>
               <div class="tp-card-stat">
-                <span class="tp-cs-label">总量</span>
-                <span class="tp-cs-val">${t.totalSupply}</span>
+                <span class="tp-cs-label">市值</span>
+                <span class="tp-cs-val">${mcap}</span>
               </div>
               <div class="tp-card-stat">
-                <span class="tp-cs-label">已 Mint</span>
-                <div class="tp-progress-bar">
-                  <div class="tp-progress-fill ${t.status}" style="width:${t.mintPercent}%"></div>
-                </div>
-                <span class="tp-cs-val">${t.mintPercent}%</span>
+                <span class="tp-cs-label">总供应量</span>
+                <span class="tp-cs-val">${supply}</span>
+              </div>
+              <div class="tp-card-stat">
+                <span class="tp-cs-label">24h 交易量</span>
+                <span class="tp-cs-val">${volume}</span>
               </div>
               <div class="tp-card-stat">
                 <span class="tp-cs-label">持币者</span>
-                <span class="tp-cs-val">${t.holders.toLocaleString()}</span>
+                <span class="tp-cs-val">${t.holders != null ? t.holders.toLocaleString() : "--"} 人</span>
+              </div>
+              <div class="tp-card-stat">
+                <span class="tp-cs-label">风险评分</span>
+                <span class="tp-cs-val">${t.risk_score != null ? t.risk_score + "/100" : "--"}</span>
               </div>
             </div>
-            <button class="tp-card-btn" onclick="openTokenModal('${t.symbol}')">
-              查看详情 →
-            </button>
+            <div class="tp-card-actions">
+              <button class="tp-card-btn tp-btn-detail" onclick="openTokenModal('${t.token}')">查看详情 →</button>
+              <a href="${bscscanLink(t.token)}" target="_blank" class="tp-card-btn tp-btn-bsc" title="BscScan">🔗</a>
+              <a href="${aveLink(t.token)}" target="_blank" class="tp-card-btn tp-btn-ave" title="Ave.ai">Ave</a>
+            </div>
           </div>
-        `).join("");
+        `;
       }
 
-      // ── 筛选 ──
-      function filterTokens(filter, btn) {
-        document.querySelectorAll(".tp-tab").forEach(t => t.classList.remove("active"));
-        btn.classList.add("active");
-        renderTokens(filter);
+      function renderList() {
+        const list = document.getElementById("tokenList");
+        const empty = document.getElementById("tpEmpty");
+
+        list.innerHTML = "";
+
+        if (currentTokens.length === 0) {
+          empty.style.display = "flex";
+          document.getElementById("tpError").style.display = "none";
+          return;
+        }
+
+        empty.style.display = "none";
+        document.getElementById("tpError").style.display = "none";
+        list.innerHTML = currentTokens.map(renderCard).join("");
+
+        updateStats();
       }
 
-      // ── 弹窗 ──
-      function openTokenModal(symbol) {
-        const t = TOKENS.find(x => x.symbol === symbol);
+      // ── 更新统计 ──
+      function updateStats() {
+        document.getElementById("statTotal").textContent = currentTokens.length;
+        document.getElementById("totalTokenCount").textContent = currentTokens.length + " 个代币";
+
+        if (currentTokens.length === 1) {
+          const t = currentTokens[0];
+          document.getElementById("statPrice").textContent =
+            parseFloat(t.current_price_usd) > 0 ? "$" + formatNumber(t.current_price_usd, 8) : "--";
+          document.getElementById("statMcap").textContent =
+            parseFloat(t.market_cap) > 0 ? "$" + formatNumber(t.market_cap) : "--";
+          document.getElementById("statHolders").textContent =
+            t.holders != null ? t.holders : "--";
+        } else {
+          const totalHolders = currentTokens.reduce((sum, t) => sum + (parseInt(t.holders) || 0), 0);
+          const totalMcap = currentTokens.reduce((sum, t) => sum + (parseFloat(t.market_cap) || 0), 0);
+          document.getElementById("statPrice").textContent = "--";
+          document.getElementById("statMcap").textContent =
+            totalMcap > 0 ? "$" + formatNumber(totalMcap) : "--";
+          document.getElementById("statHolders").textContent = totalHolders;
+        }
+      }
+
+      // ── 弹窗详情 ──
+      async function openTokenModal(address) {
+        const t = currentTokens.find(x => x.token === address);
         if (!t) return;
 
+        // 尝试获取详情（含 pairs 信息）
+        const detail = await fetchTokenDetail(address);
+
+        const status = getStatusClass(t);
+        const statusLabel = getStatusLabel(t);
+        const risk = getRiskLabel(t.risk_score);
+        const supply = formatSupply(t.total, t.decimal || 18);
+        const price = parseFloat(t.current_price_usd) > 0 ? "$" + formatNumber(t.current_price_usd, 8) : "暂无报价";
+        const mcap = parseFloat(t.market_cap) > 0 ? "$" + formatNumber(t.market_cap) : "暂无";
+        const fdv = parseFloat(t.fdv) > 0 ? "$" + formatNumber(t.fdv) : "暂无";
+        const volume24h = parseFloat(t.tx_volume_u_24h) > 0 ? "$" + formatNumber(t.tx_volume_u_24h) : "--";
+        const avatarText = t.symbol && t.symbol.length >= 2 ? t.symbol.slice(0, 2) : (t.name ? t.name.slice(0, 2) : "?");
+
+        // 从详情获取交易对信息
+        let pairInfo = "";
+        if (detail && detail.pairs && detail.pairs.length > 0) {
+          const pair = detail.pairs[0];
+          const lpReserve0 = parseFloat(pair.reserve0) > 0 ? formatNumber(parseFloat(pair.reserve0)) : "0";
+          const lpReserve1 = parseFloat(pair.reserve1) > 0 ? formatSupply(pair.reserve1, t.decimal || 18) : "0";
+          const ammName = (pair.amm || "").toUpperCase().replace(/V\d+$/, " v" + ((pair.amm || "").match(/\d+/)?.[0] || "2"));
+          pairInfo = `
+            <div class="tp-mi-row">
+              <span class="tp-mi-label">交易所</span>
+              <span class="tp-mi-val">${ammName || "PancakeSwap"}</span>
+            </div>
+            <div class="tp-mi-row">
+              <span class="tp-mi-label">交易对地址</span>
+              <span class="tp-mi-val contract-addr">${shortenAddr(pair.pair)}</span>
+            </div>
+            <div class="tp-mi-row">
+              <span class="tp-mi-label">流动性池</span>
+              <span class="tp-mi-val">WBNB / ${t.symbol || "?"}</span>
+            </div>
+            <div class="tp-mi-row">
+              <span class="tp-mi-label">池内储备</span>
+              <span class="tp-mi-val">${lpReserve0} BNB / ${lpReserve1} ${t.symbol}</span>
+            </div>
+            <div class="tp-mi-row">
+              <span class="tp-mi-label">24h 交易笔数</span>
+              <span class="tp-mi-val">${pair.tx_count ?? "--"}</span>
+            </div>
+          `;
+        }
+
         document.getElementById("tpModalHeader").innerHTML = `
-          <div class="tp-modal-avatar">${t.symbol.slice(0, 2)}</div>
+          <div class="tp-modal-avatar">${avatarText}</div>
           <div>
             <h2>${t.name} <span class="tp-modal-symbol">${t.symbol}</span></h2>
-            <span class="tp-card-badge ${t.status}">${t.status === "minting" ? "🔥 Mint中" : "✅ 已发射"}</span>
+            <span class="tp-card-badge ${status}">${statusLabel}</span>
           </div>
         `;
         document.getElementById("tpModalBody").innerHTML = `
           <div class="tp-modal-info">
             <div class="tp-mi-row">
-              <span class="tp-mi-label">Mint 价格</span>
-              <span class="tp-mi-val">${t.mintPrice}</span>
+              <span class="tp-mi-label">合约地址</span>
+              <span class="tp-mi-val contract-addr">${t.token}</span>
+            </div>
+            <div class="tp-mi-row">
+              <span class="tp-mi-label">区块链</span>
+              <span class="tp-mi-val">${t.chain?.toUpperCase() || "BSC"}</span>
+            </div>
+            <div class="tp-mi-row">
+              <span class="tp-mi-label">精度 (Decimals)</span>
+              <span class="tp-mi-val">${t.decimal ?? 18}</span>
+            </div>
+            <div class="tp-mi-row">
+              <span class="tp-mi-label">当前价格</span>
+              <span class="tp-mi-val">${price}</span>
             </div>
             <div class="tp-mi-row">
               <span class="tp-mi-label">总供应量</span>
-              <span class="tp-mi-val">${t.totalSupply}</span>
+              <span class="tp-mi-val">${supply}</span>
             </div>
             <div class="tp-mi-row">
-              <span class="tp-mi-label">已 Mint</span>
-              <span class="tp-mi-val">${t.minted}（${t.mintPercent}%）</span>
+              <span class="tp-mi-label">市值</span>
+              <span class="tp-mi-val">${mcap}</span>
             </div>
             <div class="tp-mi-row">
-              <span class="tp-mi-label">持币人数</span>
-              <span class="tp-mi-val">${t.holders.toLocaleString()}</span>
+              <span class="tp-mi-label">FDV</span>
+              <span class="tp-mi-val">${fdv}</span>
             </div>
             <div class="tp-mi-row">
-              <span class="tp-mi-label">合约地址</span>
-              <span class="tp-mi-val contract-addr">${t.contract}</span>
+              <span class="tp-mi-label">24h 交易量</span>
+              <span class="tp-mi-val">${volume24h}</span>
             </div>
             <div class="tp-mi-row">
-              <span class="tp-mi-label">发射日期</span>
-              <span class="tp-mi-val">${t.launchDate}</span>
+              <span class="tp-mi-label">持币者数量</span>
+              <span class="tp-mi-val">${t.holders != null ? t.holders.toLocaleString() + " 人" : "--"}</span>
             </div>
             <div class="tp-mi-row">
-              <span class="tp-mi-label">简介</span>
-              <span class="tp-mi-val">${t.description}</span>
+              <span class="tp-mi-label">风险评分</span>
+              <span class="tp-mi-val" style="color:${risk.color}">${t.risk_score ?? "--"} / 100 (${risk.text})</span>
             </div>
+            <div class="tp-mi-row">
+              <span class="tp-mi-label">创建时间</span>
+              <span class="tp-mi-val">${formatDate(t.created_at)}</span>
+            </div>
+            ${pairInfo}
           </div>
         `;
+
+        // 显示 Ave 链接
+        const aveLinkEl = document.getElementById("modalAveLink");
+        aveLinkEl.href = aveLink(t.token);
+        aveLinkEl.style.display = "inline-block";
+
         document.getElementById("tpModal").style.display = "flex";
       }
 
@@ -307,14 +484,96 @@
         document.getElementById("tpModal").style.display = "none";
       }
 
+      // ── 搜索功能 ──
+      async function searchByAddress() {
+        const input = document.getElementById("searchInput");
+        const addr = input.value.trim();
+
+        if (!addr) {
+          await loadDefaultToken();
+          return;
+        }
+
+        showLoading(`正在搜索 ${shortenAddr(addr)} ...`);
+
+        try {
+          const results = await fetchTokenByContract(addr);
+          if (results.length > 0) {
+            currentTokens = results;
+            renderList();
+          } else {
+            document.getElementById("tokenList").innerHTML = "";
+            document.getElementById("tpEmpty").style.display = "flex";
+            document.getElementById("tpError").style.display = "none";
+            updateStatsZero();
+          }
+        } catch (err) {
+          showError(err.message);
+        }
+      }
+
+      // 回车触发搜索
+      document.getElementById("searchInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") searchByAddress();
+      });
+
+      // ── 加载默认代币 ──
+      async function loadDefaultToken() {
+        showLoading(`正在从 Ave.ai 加载 ${shortenAddr(DEFAULT_CONTRACT)} 数据...`);
+        try {
+          const results = await fetchTokenByContract(DEFAULT_CONTRACT);
+          if (results.length > 0) {
+            currentTokens = results;
+            renderList();
+          } else {
+            document.getElementById("tokenList").innerHTML = "";
+            document.getElementById("tpEmpty").style.display = "flex";
+            document.getElementById("tpError").style.display = "none";
+            updateStatsZero();
+          }
+        } catch (err) {
+          showError(err.message);
+        }
+      }
+
+      // ── UI 状态 ──
+      function showLoading(msg) {
+        document.getElementById("tokenList").innerHTML = `
+          <div class="tp-loading" id="loadingState">
+            <div class="tp-spinner"></div>
+            <span>${msg || "正在加载..."}</span>
+          </div>
+        `;
+        document.getElementById("tpEmpty").style.display = "none";
+        document.getElementById("tpError").style.display = "none";
+      }
+
+      function showError(msg) {
+        document.getElementById("tokenList").innerHTML = "";
+        document.getElementById("tpEmpty").style.display = "none";
+        document.getElementById("tpError").style.display = "flex";
+        document.getElementById("errorMsg").textContent = msg || "网络错误，请检查连接后重试。";
+        updateStatsZero();
+      }
+
+      function updateStatsZero() {
+        document.getElementById("statTotal").textContent = "0";
+        document.getElementById("statPrice").textContent = "--";
+        document.getElementById("statMcap").textContent = "--";
+        document.getElementById("statHolders").textContent = "--";
+        document.getElementById("totalTokenCount").textContent = "0 个代币";
+      }
+
       // ── 背景粒子 ──
       const canvas = document.getElementById("bgCanvas");
       const ctx = canvas.getContext("2d");
       let particles = [];
+
       function resizeCanvas() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
       }
+
       function createParticles() {
         particles = [];
         const count = Math.floor(window.innerWidth / 18);
@@ -330,6 +589,7 @@
           });
         }
       }
+
       function drawParticles() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         particles.forEach(p => {
@@ -339,23 +599,25 @@
           ctx.globalAlpha = p.alpha;
           ctx.fill();
           ctx.globalAlpha = 1;
-          p.x += p.dx; p.y += p.dy;
+          p.x += p.dx;
+          p.y += p.dy;
           if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
           if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
         });
         requestAnimationFrame(drawParticles);
       }
-      window.addEventListener("resize", () => { resizeCanvas(); createParticles(); });
-      resizeCanvas(); createParticles(); drawParticles();
 
-      // ── 初始化 ──
-      renderTokens();
-      document.getElementById("totalTokenCount").textContent = TOKENS.length + " 个代币";
-      document.getElementById("liveMintCount").textContent = TOKENS.filter(t => t.status === "minting").length + " 正在 Mint";
-      document.getElementById("statTotal").textContent = TOKENS.length;
-      document.getElementById("statMinting").textContent = TOKENS.filter(t => t.status === "minting").length;
-      document.getElementById("statLaunched").textContent = TOKENS.filter(t => t.status === "launched").length;
-      document.getElementById("statHolders").textContent = TOKENS.reduce((s, t) => s + t.holders, 0).toLocaleString();
+      window.addEventListener("resize", () => {
+        resizeCanvas();
+        createParticles();
+      });
+
+      resizeCanvas();
+      createParticles();
+      drawParticles();
+
+      // ── 初始化：自动加载默认合约 ──
+      loadDefaultToken();
     </script>
   </body>
 </html>

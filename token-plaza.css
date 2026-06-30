@@ -139,13 +139,52 @@ a { color: inherit; text-decoration: none; }
 .tp-dot-live { background: #00e676; box-shadow: 0 0 8px rgba(0,230,118,0.5); }
 .tp-dot-gold { background: #ffd700; box-shadow: 0 0 8px rgba(255,215,0,0.5); }
 .tp-dot-red { background: #ff4444; box-shadow: 0 0 8px rgba(255,68,68,0.5); }
+.tp-dot-api { background: #3b82f6; box-shadow: 0 0 8px rgba(59,130,246,0.5); }
+
+/* ── 搜索栏 ── */
+.tp-search-bar {
+  display: flex; gap: 8px;
+  max-width: 600px; margin: 0 auto 28px;
+}
+#searchInput {
+  flex: 1;
+  padding: 12px 18px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.25s;
+  font-family: "Consolas", monospace;
+}
+#searchInput::placeholder { color: #555; }
+#searchInput:focus {
+  border-color: rgba(255,215,0,0.4);
+  box-shadow: 0 0 18px rgba(255,215,0,0.08);
+  background: rgba(255,255,255,0.06);
+}
+.tp-search-btn {
+  padding: 12px 22px;
+  background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,140,0,0.1));
+  border: 1px solid rgba(255,215,0,0.3);
+  border-radius: 12px;
+  color: #ffd700; font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.tp-search-btn:hover {
+  background: linear-gradient(135deg, rgba(255,215,0,0.25), rgba(255,140,0,0.18));
+  box-shadow: 0 0 16px rgba(255,215,0,0.15);
+}
 
 /* ── 统计卡片 ── */
 .tp-stats-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  margin: 32px 0;
+  margin: 28px 0;
 }
 .tp-stat-card {
   background: rgba(255,255,255,0.03);
@@ -162,38 +201,17 @@ a { color: inherit; text-decoration: none; }
 }
 .tp-stat-icon { font-size: 28px; margin-bottom: 8px; }
 .tp-stat-val {
-  font-size: 32px; font-weight: 900;
+  font-size: 28px; font-weight: 900;
   background: linear-gradient(135deg, #fff, #ffd700);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 .tp-stat-label { color: #888; font-size: 13px; margin-top: 4px; }
 
-/* ── 筛选 Tab ── */
-.tp-tabs {
-  display: flex; justify-content: center; gap: 10px;
-  margin-bottom: 28px; flex-wrap: wrap;
-}
-.tp-tab {
-  padding: 10px 24px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  color: #aaa; font-size: 14px; font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.tp-tab:hover { border-color: rgba(255,215,0,0.3); color: #ffd700; }
-.tp-tab.active {
-  background: linear-gradient(135deg, rgba(255,68,68,0.2), rgba(255,215,0,0.15));
-  border-color: rgba(255,215,0,0.4);
-  color: #ffd700;
-}
-
 /* ── 代币卡片网格 ── */
 .tp-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
   gap: 20px;
 }
 
@@ -223,10 +241,11 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
 .tp-card-badge {
-  position: absolute; top: 16px; right: 16px;
+  position: absolute; top: 14px; right: 14px;
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 12px; font-weight: 700;
+  z-index: 2;
 }
 .tp-card-badge.minting {
   background: rgba(255,68,68,0.15);
@@ -238,15 +257,38 @@ a { color: inherit; text-decoration: none; }
   color: #00e676;
   border: 1px solid rgba(0,230,118,0.25);
 }
+
+/* ── 风险评分标签（右上角第二行）── */
+.tp-risk-badge {
+  position: absolute; top: 42px; right: 14px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px; font-weight: 600;
+  color: var(--risk-color, #888);
+  background: color-mix(in srgb, var(--risk-color, #888) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--risk-color, #888) 30%, transparent);
+  z-index: 2;
+}
+
+/* ── 卡片头像 ── */
 .tp-card-header {
   display: flex; align-items: center; gap: 14px;
   margin-bottom: 18px;
+  position: relative;
 }
 .tp-card-avatar {
-  width: 48px; height: 48px; border-radius: 50%;
+  width: 52px; height: 52px; border-radius: 50%;
   background: linear-gradient(135deg, #ff4444, #ffd700);
   display: flex; align-items: center; justify-content: center;
   font-size: 18px; font-weight: 900; color: #000;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.tp-card-avatar-img {
+  width: 52px; height: 52px; border-radius: 50%;
+  object-fit: cover;
+  position: absolute; top: 0; left: 0;
+  display: none;
 }
 .tp-card-info h3 { font-size: 17px; color: #fff; }
 .tp-card-symbol { font-size: 13px; color: #ffd700; font-weight: 600; }
@@ -256,13 +298,19 @@ a { color: inherit; text-decoration: none; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 .tp-card-stat {
   display: flex; flex-direction: column; gap: 3px;
 }
 .tp-cs-label { font-size: 11px; color: #666; }
 .tp-cs-val { font-size: 13px; color: #ddd; font-weight: 600; }
+.tp-price-val {
+  color: #00e676 !important;
+  font-family: "Consolas", monospace;
+}
+
+/* 进度条保留兼容（当前版本暂未使用）*/
 .tp-progress-bar {
   width: 100%; height: 6px;
   background: rgba(255,255,255,0.06);
@@ -279,18 +327,71 @@ a { color: inherit; text-decoration: none; }
 .tp-progress-fill.launched {
   background: linear-gradient(90deg, #00e676, #ffd700);
 }
+
+/* ── 卡片操作按钮组 ── */
+.tp-card-actions {
+  display: flex; gap: 8px;
+}
 .tp-card-btn {
-  width: 100%; padding: 10px;
-  background: rgba(255,215,0,0.08);
-  border: 1px solid rgba(255,215,0,0.2);
+  flex: 1;
+  padding: 10px;
   border-radius: 10px;
-  color: #ffd700; font-size: 14px; font-weight: 600;
+  font-size: 13px; font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  text-align: center;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 4px;
+  text-decoration: none !important;
 }
-.tp-card-btn:hover {
+.tp-btn-detail {
+  background: rgba(255,215,0,0.08);
+  border: 1px solid rgba(255,215,0,0.2);
+  color: #ffd700;
+}
+.tp-btn-detail:hover {
   background: rgba(255,215,0,0.18);
   box-shadow: 0 0 16px rgba(255,215,0,0.15);
+}
+.tp-btn-bsc {
+  flex: 0 0 auto; width: 40px;
+  background: rgba(59,130,246,0.08);
+  border: 1px solid rgba(59,130,246,0.25);
+  color: #3b82f6;
+  font-size: 16px;
+}
+.tp-btn-bsc:hover {
+  background: rgba(59,130,246,0.2);
+}
+.tp-btn-ave {
+  flex: 0 0 auto; width: 48px;
+  background: rgba(168,85,247,0.08);
+  border: 1px solid rgba(168,85,247,0.25);
+  color: #a855f7;
+  font-size: 12px;
+  font-family: system-ui;
+}
+.tp-btn-ave:hover {
+  background: rgba(168,85,247,0.2);
+}
+
+/* ── 加载状态 ── */
+.tp-loading {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 16px;
+  padding: 80px 20px;
+  color: #888; font-size: 14px;
+  grid-column: 1 / -1;
+}
+.tp-spinner {
+  width: 36px; height: 36px;
+  border: 3px solid rgba(255,215,0,0.15);
+  border-top-color: #ffd700;
+  border-radius: 50%;
+  animation: tpSpin 0.8s linear infinite;
+}
+@keyframes tpSpin {
+  to { transform: rotate(360deg); }
 }
 
 /* ── 空状态 ── */
@@ -299,18 +400,33 @@ a { color: inherit; text-decoration: none; }
   justify-content: center;
   padding: 80px 20px;
   text-align: center;
+  grid-column: 1 / -1;
 }
 .tp-empty-icon { font-size: 64px; opacity: 0.3; margin-bottom: 16px; }
 .tp-empty h3 { font-size: 20px; color: #888; margin-bottom: 8px; }
 .tp-empty p { font-size: 14px; color: #555; margin-bottom: 24px; }
-.tp-empty-btn {
-  padding: 12px 28px;
+
+/* ── 错误状态 ── */
+.tp-error {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+  grid-column: 1 / -1;
+}
+.tp-error-icon { font-size: 56px; margin-bottom: 16px; }
+.tp-error h3 { font-size: 20px; color: #ff6b6b; margin-bottom: 8px; }
+.tp-error p { font-size: 14px; color: #888; margin-bottom: 20px; }
+.tp-retry-btn {
+  padding: 10px 26px;
   background: linear-gradient(135deg, #ff4444, #cc0000);
+  border: none;
   border-radius: 10px;
   color: #fff; font-size: 14px; font-weight: 700;
+  cursor: pointer;
   transition: all 0.2s;
 }
-.tp-empty-btn:hover { box-shadow: 0 0 20px rgba(255,68,68,0.4); }
+.tp-retry-btn:hover { box-shadow: 0 0 20px rgba(255,68,68,0.4); }
 
 /* ── 弹窗 ── */
 .tp-modal-overlay {
@@ -323,8 +439,8 @@ a { color: inherit; text-decoration: none; }
   background: #141414;
   border: 1px solid rgba(255,215,0,0.15);
   border-radius: 20px;
-  width: 90%; max-width: 520px;
-  max-height: 85vh; overflow-y: auto;
+  width: 92%; max-width: 560px;
+  max-height: 88vh; overflow-y: auto;
   position: relative;
 }
 .tp-modal-close {
@@ -343,10 +459,11 @@ a { color: inherit; text-decoration: none; }
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 .tp-modal-avatar {
-  width: 52px; height: 52px; border-radius: 50%;
+  width: 54px; height: 54px; border-radius: 50%;
   background: linear-gradient(135deg, #ff4444, #ffd700);
   display: flex; align-items: center; justify-content: center;
-  font-size: 20px; font-weight: 900; color: #000;
+  font-size: 22px; font-weight: 900; color: #000;
+  flex-shrink: 0;
 }
 .tp-modal-header h2 { font-size: 20px; color: #fff; }
 .tp-modal-symbol { color: #ffd700; font-size: 14px; margin-left: 6px; }
@@ -357,12 +474,13 @@ a { color: inherit; text-decoration: none; }
   padding-bottom: 12px;
   border-bottom: 1px solid rgba(255,255,255,0.04);
 }
-.tp-mi-label { color: #888; font-size: 13px; }
-.tp-mi-val { color: #ddd; font-size: 14px; font-weight: 600; text-align: right; }
-.contract-addr { font-family: monospace; font-size: 12px; color: #ffd700; }
+.tp-mi-label { color: #888; font-size: 13px; flex-shrink: 0; }
+.tp-mi-val { color: #ddd; font-size: 14px; font-weight: 600; text-align: right; word-break: break-all; }
+.contract-addr { font-family: "Consolas", monospace; font-size: 12px; color: #ffd700; cursor: pointer; }
 .tp-modal-footer {
   padding: 16px 28px 24px;
-  display: flex; justify-content: flex-end;
+  display: flex; justify-content: flex-end; align-items: center;
+  gap: 12px;
 }
 .tp-modal-btn {
   padding: 10px 24px;
@@ -373,6 +491,19 @@ a { color: inherit; text-decoration: none; }
   cursor: pointer; transition: all 0.2s;
 }
 .tp-modal-btn:hover { background: rgba(255,215,0,0.1); color: #ffd700; }
+.tp-modal-link {
+  padding: 10px 22px;
+  background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(139,92,246,0.1));
+  border: 1px solid rgba(168,85,247,0.35);
+  border-radius: 10px;
+  color: #c084fc; font-size: 13px; font-weight: 600;
+  transition: all 0.2s;
+  margin-right: auto;
+}
+.tp-modal-link:hover {
+  background: linear-gradient(135deg, rgba(168,85,247,0.28), rgba(139,92,246,0.2));
+  box-shadow: 0 0 16px rgba(168,85,247,0.2);
+}
 
 /* ── 响应式 ── */
 @media (max-width: 900px) {
@@ -382,14 +513,19 @@ a { color: inherit; text-decoration: none; }
   .bottom-tab-nav { display: flex; }
   body { padding-bottom: 70px; }
   .lp-nav-inner { padding: 10px 14px; }
+  .tp-search-bar { max-width: 100%; }
 }
 @media (max-width: 640px) {
   .tp-main { padding: 20px 12px 100px; }
   .tp-stats-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .tp-stat-card { padding: 14px; }
-  .tp-stat-val { font-size: 24px; }
-  .tp-tabs { gap: 6px; }
-  .tp-tab { padding: 8px 14px; font-size: 13px; }
-  .tp-card { padding: 18px; }
+  .tp-stat-val { font-size: 22px; }
   .tp-status-bar { gap: 14px; }
+  .tp-card { padding: 18px; }
+  .tp-card-stats { grid-template-columns: 1fr; }
+  .tp-card-actions { flex-wrap: wrap; }
+  #searchInput { font-size: 13px; padding: 10px 14px; }
+  .tp-search-btn { padding: 10px 16px; font-size: 13px; }
+  .tp-modal { width: 95%; max-height: 82vh; }
+  .tp-mi-row { flex-wrap: wrap; gap: 4px; }
 }
