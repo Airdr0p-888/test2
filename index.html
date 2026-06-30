@@ -3,414 +3,250 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>杀零拳头 · 官网</title>
-    <link rel="stylesheet" href="./index.css" />
+    <title>GOLDLAUNCH 发射台</title>
+    <link rel="stylesheet" href="./styles.css?v=20260630-renounce-owner" />
+    <script type="module" src="./app.js?v=20260630-renounce-owner"></script>
   </head>
   <body>
-    <canvas id="bgCanvas"></canvas>
-
-    <!-- 导航 -->
-    <header class="site-nav">
-      <div class="nav-inner">
-        <div class="brand">
-          <div class="brand-logo">
-            <img src="./touxiao.png" alt="杀零拳头" />
-            <div class="logo-ring"></div>
-          </div>
-          <div class="brand-info">
-            <strong>杀零拳头</strong>
-            <span>KILL ZERO FIST</span>
-          </div>
+    <div class="shell">
+      <aside class="sidebar">
+        <a href="../index.html" style="display:inline-block;margin-bottom:12px;color:var(--gold,#D4A017);font-size:13px;text-decoration:none;font-weight:600;">&larr; 返回首页</a>
+        <div>
+          <p class="eyebrow">GOLDLAUNCH Token V1</p>
+          <h1>部署与管理员控制台</h1>
         </div>
-        <nav class="main-nav">
-          <a href="#about">关于</a>
-          <a href="#tokenomics">代币经济</a>
-          <a href="./token-plaza.html">代币广场</a>
-          <a href="#roadmap">路线图</a>
-          <a href="#community">社区</a>
-          <a href="./launchpad.html" class="launch-nav-btn">🚀 发射台</a>
-          <a href="./mint.html?contract=0xE628bdB19c744f2225d2D18f78f050265e600000" class="mint-nav-btn">🥊 进入 Mint</a>
+        <button id="connectWallet" class="primary">连接钱包</button>
+        <div class="wallet-card">
+          <span>当前钱包</span>
+          <strong id="walletAddress">未连接</strong>
+          <span>网络</span>
+          <strong id="networkName">未知</strong>
+        </div>
+        <nav class="tabs" aria-label="功能切换">
+          <button class="tab active" data-tab="deploy">部署</button>
+          <button class="tab" data-tab="mint">用户 Mint</button>
+          <button class="tab" data-tab="admin">管理员</button>
         </nav>
-        <button class="hamburger" id="hamburger" aria-label="菜单">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
-    </header>
+      </aside>
 
-    <!-- 移动端菜单（保留备用） -->
-    <div class="mobile-menu" id="mobileMenu">
-      <a href="#about" onclick="closeMobile()">关于</a>
-      <a href="#tokenomics" onclick="closeMobile()">代币经济</a>
-      <a href="./token-plaza.html" onclick="closeMobile()">₿ 代币广场</a>
-      <a href="#roadmap" onclick="closeMobile()">路线图</a>
-      <a href="#community" onclick="closeMobile()">社区</a>
-      <a href="./launchpad.html" class="mobile-launch-btn">🚀 发射台</a>
-      <a href="./mint.html?contract=0xE628bdB19c744f2225d2D18f78f050265e600000" class="mobile-mint-btn">🥊 进入 Mint</a>
+      <main>
+        <section id="deploy" class="panel active">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Step 1</p>
+              <h2>配置并部署合约</h2>
+            </div>
+            <button id="compileContract" class="secondary">编译合约</button>
+          </div>
+
+          <form id="deployForm" class="deploy-form">
+            <fieldset>
+              <legend>基础信息</legend>
+              <div class="grid">
+                <label>代币名称<input name="name" value="GOLDLAUNCH" required /></label>
+                <label>代币符号<input name="symbol" value="GOLD" required /></label>
+                <label>总供应量<input name="totalSupply" type="text" inputmode="decimal" value="100" pattern="(?:0|[1-9]\d*)(?:\.\d{1,18})?" title="请输入普通数字，最多18位小数，不要使用科学计数法" required /></label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>网络地址</legend>
+              <div class="grid">
+                <label>Mint 模式<select name="mintMode"><option value="0">BNB</option><option value="1">USDT</option></select></label>
+                <label>USDT 地址 <small style="color:#D4A017;font-weight:400">（USDT暂不可用）</small><input name="usdtAddress" placeholder="连接钱包后自动填写" /></label>
+                <label>Router 地址<input name="router" placeholder="连接钱包后自动填写" required /></label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Mint 配置</legend>
+              <div class="grid">
+                <label>单次 Mint 价格<input name="mintPrice" type="number" step="0.000000000000000001" value="0.01" required /></label>
+                <label>单次 Mint 代币数<input name="tokenPerMint" type="number" value="1000000" min="0.000000000000000001" step="any" required /></label>
+                <label>最大 Mint 次数<input name="maxMintCount" type="number" value="1000" min="1" required /></label>
+                <label>用户到账方式<select name="userMintMode"><option value="0">按比例</option><option value="1">按固定数量</option></select></label>
+                <label id="userMintShareField">用户拿到代币比例 %<input name="userMintShare" type="number" value="70" min="0" max="100" step="0.01" required /></label>
+                <label id="userMintAmountField">用户每次到账数量<input name="userMintAmount" type="number" value="700000" min="0" step="any" required disabled /></label>
+                <label>进入流动性的募集资金 %<input name="lpFundShare" type="number" value="80" min="0" max="100" step="0.01" required /></label>
+                <label>目标开盘单价<input name="targetLaunchPrice" type="text" inputmode="decimal" placeholder="输入后自动计算单次Mint代币数" /><small id="targetLaunchPriceCurrency">BNB/枚</small></label>
+              </div>
+              <div id="targetLaunchPriceHint" class="form-hint"></div>
+              <div id="deployHints" class="mini-stats"></div>
+            </fieldset>
+
+            <fieldset>
+              <legend>税率</legend>
+              <div class="grid">
+                <label>买入税 %<input name="buyTax" type="number" value="0" min="0" max="5" step="0.01" required /></label>
+                <label>卖出税 %<input name="sellTax" type="number" value="0" min="0" max="100" step="0.01" required /></label>
+                <label>转账税 %<input name="transferTax" type="number" value="0" min="0" max="5" step="0.01" required /></label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>税收分配</legend>
+              <div class="share-grid">
+                <label class="share-control">营销钱包 %<input name="marketingShare" type="range" value="100" min="0" max="100" step="0.01" /><input name="marketingShareNumber" type="number" value="100" min="0" max="100" step="0.01" /></label>
+                <label class="share-control">代币销毁 %<input name="burnShare" type="range" value="0" min="0" max="100" step="0.01" /><input name="burnShareNumber" type="number" value="0" min="0" max="100" step="0.01" /></label>
+                <label class="share-control">回流 LP %<input name="lpShare" type="range" value="0" min="0" max="100" step="0.01" /><input name="lpShareNumber" type="number" value="0" min="0" max="100" step="0.01" /></label>
+                <label class="share-control">持币分红 %<input name="dividendShare" type="range" value="0" min="0" max="100" step="0.01" /><input name="dividendShareNumber" type="number" value="0" min="0" max="100" step="0.01" /></label>
+              </div>
+              <div id="taxShareHint" class="form-hint ok">税收分配合计 100%</div>
+              <div class="grid share-extra">
+                <label>分红代币地址<input name="rewardToken" placeholder="留空=默认；BNB底池分USDT则填USDT地址" /></label>
+                <label>持币分红最低持仓<input name="minTokenDividendBalance" type="number" value="0" min="0" step="1" /></label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>限购</legend>
+              <div class="grid">
+                <label>买入限购<select name="buyLimitEnabled"><option value="false">关闭</option><option value="true">开启</option></select></label>
+                <label>单钱包累计限购代币数<input name="maxBuyAmountPerWallet" type="number" value="0" min="0" step="1" /></label>
+                <label>金额限购<select name="buyAmountLimitEnabled"><option value="false">关闭</option><option value="true">开启</option></select></label>
+                <label>单钱包累计限购金额（BNB/USDT）<input name="maxBuyBaseAmountPerWallet" type="number" value="0.1" min="0" step="0.000000000000000001" /></label>
+                <label>买入白名单<select name="buyWhitelistEnabled"><option value="false">关闭</option><option value="true">开启</option></select></label>
+                <label>开盘前买入白名单<select name="preLaunchBuyWhitelistEnabled"><option value="false">关闭</option><option value="true">开启</option></select></label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>开盘与钱包</legend>
+              <div class="grid">
+                <label>开盘模式<select name="launchMode"><option value="0">手动</option><option value="1">定时</option><option value="2">Mint 满自动</option></select></label>
+                <label>开盘时间<input name="launchTime" type="datetime-local" /></label>
+                <label>营销钱包<input name="marketingWallet" placeholder="默认使用部署钱包" /></label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>尾号定制</legend>
+              <div class="grid">
+                <label>合约尾号定制<select name="vanityEnabled"><option value="false">关闭</option><option value="true">开启</option></select></label>
+                <label>目标尾号<input name="vanitySuffix" placeholder="例如 8888，最多 5 位十六进制" maxlength="5" /></label>
+              </div>
+              <div id="vanityHint" class="form-hint">开启后会先部署 CREATE2 工厂，再部署目标尾号 Token。Owner 仍是当前钱包。</div>
+            </fieldset>
+
+            <button class="primary wide" type="submit">部署合约</button>
+          </form>
+          <div id="verificationBox" class="downloads" hidden>
+            <h3>验证开源材料</h3>
+            <a id="downloadStandardJson" download="verify-standard-json-input.json">下载 Standard JSON</a>
+            <a id="downloadConstructorArgs" download="constructor-args.txt">下载构造参数编码</a>
+            <a id="downloadDeploymentInfo" download="deployment-info.json">下载部署记录</a>
+          </div>
+        </section>
+
+        <section id="mint" class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Public</p>
+              <h2>用户 Mint 页面</h2>
+            </div>
+          </div>
+          <div class="grid compact">
+            <label>合约地址<input id="mintContractAddress" placeholder="部署后会自动填入" /></label>
+            <button id="loadMintInfo" class="secondary">读取 Mint 信息</button>
+          </div>
+          <div id="mintStats" class="stats"></div>
+          <button id="mintNow" class="primary">立即 Mint</button>
+          <button id="claimDividends" class="secondary">领取分红</button>
+        </section>
+
+        <section id="admin" class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Owner</p>
+              <h2>管理员后续操作</h2>
+            </div>
+            <button id="refreshAdmin" class="secondary">刷新状态</button>
+          </div>
+          <div class="grid compact">
+            <label>合约地址<input id="adminContractAddress" placeholder="部署后会自动填入" /></label>
+            <button id="loadAdmin" class="secondary">加载合约</button>
+          </div>
+          <div id="adminStats" class="stats"></div>
+
+          <div class="admin-groups">
+            <article>
+              <h3>Mint 与开盘</h3>
+              <div class="row"><input id="newMintPrice" placeholder="新 Mint 价格" /><button data-action="setMintPrice">设置价格</button></div>
+              <div class="row"><input id="newTokenPerMint" placeholder="新单次代币数" type="number" min="0" step="any" /><button data-action="setTokenPerMint">设置数量</button></div>
+              <div class="row"><input id="newMaxMintCount" placeholder="新最大次数" /><button data-action="setMaxMintCount">设置上限</button></div>
+              <div class="row"><input id="newLaunchTime" type="datetime-local" /><button data-action="setLaunchTime">设置时间</button></div>
+              <button data-action="openTrading">开启交易</button>
+              <button data-action="closeMint">关闭 Mint</button>
+              <button data-action="pause">暂停</button>
+              <button data-action="unpause">恢复</button>
+              <button data-action="disablePauseForever">永久禁用暂停</button>
+            </article>
+
+            <article>
+              <h3>名单管理</h3>
+              <div class="row"><select id="whitelistEnabled"><option value="true">开启白名单</option><option value="false">关闭白名单</option></select><button data-action="setWhitelistEnabled">保存</button></div>
+              <div class="row"><select id="buyWhitelistEnabled"><option value="true">开启买入白名单</option><option value="false">关闭买入白名单</option></select><button data-action="setBuyWhitelistEnabled">保存</button></div>
+              <div class="row"><select id="preLaunchBuyWhitelistEnabled"><option value="true">开启开盘前买入白名单</option><option value="false">关闭开盘前买入白名单</option></select><button data-action="setPreLaunchBuyWhitelistEnabled">保存</button></div>
+              <div class="row"><input id="listAddress" placeholder="钱包地址" /><select id="listValue"><option value="true">加入</option><option value="false">移除</option></select></div>
+              <button data-action="setWhitelist">白名单</button>
+              <button data-action="setBuyWhitelist">买入白名单</button>
+              <button data-action="setPreLaunchBuyWhitelist">开盘前买入白名单</button>
+              <button data-action="setExcludedFromDividends">分红排除名单</button>
+              <textarea id="batchListAddresses" rows="6" placeholder="批量地址，一行一个"></textarea>
+              <button data-action="batchSetWhitelist">批量白名单</button>
+              <button data-action="batchSetBuyWhitelist">批量买入白名单</button>
+              <button data-action="batchSetPreLaunchBuyWhitelist">批量开盘前买入白名单</button>
+              <button data-action="batchSetExcludedFromDividends">批量分红排除名单</button>
+              <button data-action="setExcludedFromFee">手续费排除</button>
+              <button data-action="lockFeeExemptions">锁定免税名单</button>
+            </article>
+
+            <article>
+              <h3>税率与分配</h3>
+              <div class="row"><input id="buyTax" placeholder="买税 BP" /><button data-action="setBuyTax">设置买税</button></div>
+              <div class="row"><input id="sellTax" placeholder="卖税 BP，最高10000" /><button data-action="setSellTax">设置卖税</button></div>
+              <div class="row"><input id="transferTax" placeholder="转账税 BP" /><button data-action="setTransferTax">设置转账税</button></div>
+              <div class="row four"><input id="marketingShare" placeholder="营销 BP" /><input id="burnShare" placeholder="销毁 BP" /><input id="lpShare" placeholder="LP BP" /><input id="dividendShare" placeholder="分红 BP" /></div>
+              <button data-action="setTaxShares">设置分配比例</button>
+              <button data-action="lockTaxes">锁定税率与分配</button>
+              <div class="row"><input id="marketingWallet" placeholder="营销钱包" /><button data-action="setMarketingWallet">设置钱包</button></div>
+              <div class="row"><input id="rewardTokenAdmin" placeholder="分红代币地址，留空=默认" /><button data-action="setRewardToken">设置分红代币</button></div>
+              <div class="row"><input id="swapThreshold" placeholder="Swap 阈值" /><button data-action="setSwapThreshold">设置阈值</button></div>
+              <button data-action="forceSwapBack">执行 SwapBack</button>
+            </article>
+
+            <article>
+              <h3>买入限购</h3>
+              <div class="row"><select id="buyLimitEnabled"><option value="true">开启限购</option><option value="false">关闭限购</option></select><button data-action="setBuyLimitEnabled">保存</button></div>
+              <div class="row"><input id="maxBuyAmountPerWallet" placeholder="单钱包累计限购代币数" /><button data-action="setMaxBuyAmountPerWallet">设置数量</button></div>
+              <div class="row"><select id="buyAmountLimitEnabled"><option value="true">开启金额限购</option><option value="false">关闭金额限购</option></select><button data-action="setBuyAmountLimitEnabled">保存</button></div>
+              <div class="row"><input id="maxBuyBaseAmountPerWallet" placeholder="累计金额上限，如 0.1" /><button data-action="setMaxBuyBaseAmountPerWallet">设置金额</button></div>
+            </article>
+
+            <article>
+              <h3>分红、流动性与提现</h3>
+              <div class="row"><input id="minTokenDividendBalance" placeholder="持币分红最低持仓" /><button data-action="setMinTokenDividendBalance">设置门槛</button></div>
+              <div class="row"><select id="autoDividendEnabled"><option value="true">开启自动分红</option><option value="false">关闭自动分红</option></select><button data-action="setAutoDividendEnabled">保存</button></div>
+              <div class="row"><input id="autoDividendBatchSize" placeholder="每次处理地址数，默认5" /><button data-action="setAutoDividendBatchSize">设置批次</button></div>
+              <div class="row"><input id="dividendAmount" placeholder="分红金额" /><button data-action="fundTokenDividend">代币持有人分红</button></div>
+              <div class="row"><input id="lpDividendAmount" placeholder="LP 分红金额" /><button data-action="fundLPDividend">LP 分红</button></div>
+              <div class="row"><input id="liqTokenAmount" placeholder="代币数量" /><input id="liqFundAmount" placeholder="资金数量" /><button data-action="forceAddLiquidity">加池</button></div>
+              <div class="row"><input id="withdrawBNBAmount" placeholder="BNB 数量，空为全部" /><button data-action="withdrawBNB">提取 BNB</button></div>
+              <div class="row"><input id="withdrawTokenAddress" placeholder="代币地址" /><input id="withdrawTokenAmount" placeholder="数量，空为全部" /><button data-action="withdrawToken">提取代币</button></div>
+              <div class="row"><input id="withdrawDividendReserveAmount" placeholder="分红储备数量，空为全部" /><button data-action="withdrawDividendReserve">提取分红储备</button></div>
+              <div class="row"><input id="withdrawLPAmount" placeholder="LP 数量，空为全部" /><button data-action="withdrawLP">提取 LP</button></div>
+            </article>
+
+            <article class="danger-zone">
+              <h3>永久丢弃管理员权限</h3>
+              <p class="danger-note">不可恢复，仅允许在交易已经开启后操作。</p>
+              <div class="row"><input id="renounceConfirmation" autocomplete="off" placeholder="输入 RENOUNCE 确认" /><button class="danger" data-action="renounceOwnership">永久丢弃权限</button></div>
+            </article>
+          </div>
+        </section>
+
+        <pre id="log" aria-live="polite"></pre>
+      </main>
     </div>
-
-    <!-- 手机端底部固定导航 -->
-    <nav class="bottom-tab-nav" id="bottomTabNav">
-      <a href="./index.html" class="btn-item">
-        <span class="btn-ico">🏠</span>
-        <span class="btn-txt">官网</span>
-      </a>
-      <a href="./token-plaza.html" class="btn-item btn-plaza active">
-        ₿
-        <span class="btn-txt">广场</span>
-      </a>
-      <a href="./launchpad.html" class="btn-item btn-launch">
-        <span class="btn-ico">🚀</span>
-        <span class="btn-txt">发射台</span>
-      </a>
-      <a href="./mint.html?contract=0xE628bdB19c744f2225d2D18f78f050265e600000" class="btn-item btn-mint">
-        <span class="btn-ico">🥊</span>
-        <span class="btn-txt">Mint</span>
-      </a>
-    </nav>
-
-    <main>
-
-      <!-- Hero 英雄区 -->
-      <section class="hero">
-        <div class="hero-content">
-          <div class="hero-eyebrow">
-            <span class="dot"></span>
-            BSC CHAIN · FAIR LAUNCH
-            <span class="dot"></span>
-          </div>
-          <h1 class="hero-h1">
-            <span class="h1-line1">杀零</span>
-            <span class="h1-line2">拳头</span>
-          </h1>
-          <p class="hero-tagline">一击必杀 · 零成本入场 · 链上传奇永不磨灭</p>
-          <div class="hero-cta">
-            <a href="./mint.html?contract=0xE628bdB19c744f2225d2D18f78f050265e600000" class="btn-primary">
-              🥊 立即 Mint
-            </a>
-            <a href="./launchpad.html" class="btn-launch-hero">🚀 发射台</a>
-            <a href="./token-plaza.html" class="btn-plaza-hero">₿ 代币广场</a>
-            <a href="#about" class="btn-ghost">了解项目 →</a>
-          </div>
-          <div class="hero-stats">
-            <div class="hstat">
-              <strong>公平发射</strong>
-              <span>Fair Launch</span>
-            </div>
-            <div class="hstat-divider"></div>
-            <div class="hstat">
-              <strong>BSC 链上</strong>
-              <span>On-chain</span>
-            </div>
-            <div class="hstat-divider"></div>
-            <div class="hstat">
-              <strong>持币分红</strong>
-              <span>Dividends</span>
-            </div>
-          </div>
-        </div>
-        <div class="hero-visual">
-          <div class="glow-bg"></div>
-          <div class="hero-avatar-wrap">
-            <div class="ha-rings">
-              <div class="ha-ring r1"></div>
-              <div class="ha-ring r2"></div>
-              <div class="ha-ring r3"></div>
-              <div class="ha-ring r4"></div>
-            </div>
-            <div class="ha-frame">
-              <img src="./touxiao.png" alt="杀零拳头" />
-            </div>
-            <div class="ha-label">KILL ZERO FIST</div>
-            <div class="ha-badge">🥊 POWER LEVEL MAX</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 关于项目 -->
-      <section class="about-section section" id="about">
-        <div class="section-inner">
-          <div class="section-label">ABOUT</div>
-          <h2 class="section-h2">什么是<span>杀零拳头</span>？</h2>
-          <p class="section-desc">杀零拳头是部署在 BNB Smart Chain 上的公平发射代币。零预挖、无私募，所有人同等机会 Mint，代币即时到账，参与者均可享受持币分红权益。</p>
-          <div class="feature-grid">
-            <div class="feature-card">
-              <div class="fc-icon">⚡</div>
-              <h3>即时到账</h3>
-              <p>Mint 成功后代币秒速到达你的钱包，无需等待任何锁仓周期</p>
-            </div>
-            <div class="feature-card">
-              <div class="fc-icon">🛡️</div>
-              <h3>公平机制</h3>
-              <p>一个钱包地址只能参与一次 Mint，确保绝对公平的代币分发</p>
-            </div>
-            <div class="feature-card">
-              <div class="fc-icon">💰</div>
-              <h3>持币分红</h3>
-              <p>持有代币可累积分红奖励，随时领取，链上透明可验证</p>
-            </div>
-            <div class="feature-card">
-              <div class="fc-icon">🔗</div>
-              <h3>链上透明</h3>
-              <p>合约开源在 BSCScan，所有规则写入代码，无法篡改</p>
-            </div>
-            <div class="feature-card">
-              <div class="fc-icon">🥊</div>
-              <h3>战斗精神</h3>
-              <p>杀零拳头代表绝不认输、勇往直前的链上战士精神</p>
-            </div>
-            <div class="feature-card">
-              <div class="fc-icon">🚀</div>
-              <h3>社区驱动</h3>
-              <p>项目由社区共同推动，持有者就是项目的主人和建设者</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 代币经济 -->
-      <section class="token-section section" id="tokenomics">
-        <div class="section-inner">
-          <div class="section-label">TOKENOMICS</div>
-          <h2 class="section-h2">代币<span>经济模型</span></h2>
-          <div class="token-layout">
-            <div class="token-info">
-              <div class="token-detail-card">
-                <div class="tdc-row">
-                  <span>代币名称</span>
-                  <strong>杀零拳头</strong>
-                </div>
-                <div class="tdc-row">
-                  <span>发行链</span>
-                  <strong>BNB Smart Chain</strong>
-                </div>
-                <div class="tdc-row">
-                  <span>Mint 方式</span>
-                  <strong>BNB / USDT</strong>
-                </div>
-                <div class="tdc-row">
-                  <span>地址限制</span>
-                  <strong>每地址 1 次</strong>
-                </div>
-                <div class="tdc-row">
-                  <span>代币到账</span>
-                  <strong>即时 · 秒到</strong>
-                </div>
-                <div class="tdc-row">
-                  <span>分红机制</span>
-                  <strong>持币可领取</strong>
-                </div>
-              </div>
-              <a href="./mint.html?contract=0xE628bdB19c744f2225d2D18f78f050265e600000" class="btn-primary full-btn">🥊 去 Mint 获取代币</a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 路线图 -->
-      <section class="roadmap-section section" id="roadmap">
-        <div class="section-inner">
-          <div class="section-label">ROADMAP</div>
-          <h2 class="section-h2">发展<span>路线图</span></h2>
-          <div class="roadmap-timeline">
-            <div class="timeline-line"></div>
-            <div class="rm-item active">
-              <div class="rm-dot active-dot">
-                <span>1</span>
-              </div>
-              <div class="rm-card">
-                <div class="rm-phase">Phase 1 · 已完成</div>
-                <h3>合约部署 &amp; 公平发射</h3>
-                <ul>
-                  <li>✅ 合约开发与审计</li>
-                  <li>✅ BSC 主网部署</li>
-                  <li>✅ Mint 界面上线</li>
-                  <li>✅ 社区建立</li>
-                </ul>
-              </div>
-            </div>
-            <div class="rm-item">
-              <div class="rm-dot">
-                <span>2</span>
-              </div>
-              <div class="rm-card">
-                <div class="rm-phase">Phase 2 · 进行中</div>
-                <h3>流动性 &amp; 交易开放</h3>
-                <ul>
-                  <li>🔄 PancakeSwap 流动性注入</li>
-                  <li>🔄 交易对开放</li>
-                  <li>🔄 持币分红激活</li>
-                  <li>🔄 CMC / CG 申请</li>
-                </ul>
-              </div>
-            </div>
-            <div class="rm-item future">
-              <div class="rm-dot future-dot">
-                <span>3</span>
-              </div>
-              <div class="rm-card">
-                <div class="rm-phase">Phase 3 · 规划中</div>
-                <h3>生态扩展</h3>
-                <ul>
-                  <li>⏳ CEX 上所</li>
-                  <li>⏳ NFT 战士系列</li>
-                  <li>⏳ 链上竞技游戏</li>
-                  <li>⏳ 跨链扩展</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 社区 -->
-      <section class="community-section section" id="community">
-        <div class="section-inner">
-          <div class="section-label">COMMUNITY</div>
-          <h2 class="section-h2">加入<span>战士社区</span></h2>
-          <p class="section-desc">杀零拳头社区由拳手组成，每一个 Mint 参与者都是战士。加入我们，共同书写链上传奇。</p>
-          <div class="community-cards">
-            <a href="#" class="comm-card">
-              <div class="comm-icon">💬</div>
-              <div class="comm-info">
-                <strong>Telegram</strong>
-                <span>加入官方社群</span>
-              </div>
-              <div class="comm-arrow">→</div>
-            </a>
-            <a href="#" class="comm-card">
-              <div class="comm-icon">🐦</div>
-              <div class="comm-info">
-                <strong>X (Twitter)</strong>
-                <span>关注最新动态</span>
-              </div>
-              <div class="comm-arrow">→</div>
-            </a>
-            <a href="#" class="comm-card">
-              <div class="comm-icon">📋</div>
-              <div class="comm-info">
-                <strong>BSCScan</strong>
-                <span>查看合约</span>
-              </div>
-              <div class="comm-arrow">→</div>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <!-- CTA 结尾 -->
-      <section class="final-cta">
-        <div class="fcta-inner">
-          <div class="fcta-avatar">
-            <img src="./touxiao.png" alt="杀零拳头" />
-          </div>
-          <h2>准备好出拳了吗？</h2>
-          <p>公平 Mint 进行中，错过就是错过</p>
-          <a href="./mint.html?contract=0xE628bdB19c744f2225d2D18f78f050265e600000" class="btn-primary large-btn">🥊 立即 Mint</a>
-          <div class="fcta-note">代币秒到账 · 一个钱包仅限一次</div>
-        </div>
-      </section>
-
-    </main>
-
-    <!-- 页脚 -->
-    <footer class="site-footer">
-      <div class="footer-inner">
-        <div class="footer-brand">
-          <img src="./touxiao.png" alt="杀零拳头" />
-          <div>
-            <strong>杀零拳头</strong>
-            <span>KILL ZERO FIST · BSC Chain</span>
-          </div>
-        </div>
-        <div class="footer-links">
-          <a href="./mint.html?contract=0xE628bdB19c744f2225d2D18f78f050265e600000">Mint 界面</a>
-          <a href="#about">关于</a>
-          <a href="#tokenomics">代币经济</a>
-          <a href="#plaza">代币广场</a>
-          <a href="#roadmap">路线图</a>
-        </div>
-        <div class="footer-disclaimer">
-          加密货币存在市场风险，参与前请充分了解相关规则。
-        </div>
-        <div class="footer-copy">© 2024 杀零拳头 · All rights reserved</div>
-      </div>
-    </footer>
-
-    <script>
-      // 背景粒子
-      (function() {
-        const canvas = document.getElementById('bgCanvas');
-        const ctx = canvas.getContext('2d');
-        let w, h, particles = [];
-
-        function resize() {
-          w = canvas.width = window.innerWidth;
-          h = canvas.height = window.innerHeight;
-        }
-
-        function mkParticle() {
-          return {
-            x: Math.random() * w, y: Math.random() * h,
-            vx: (Math.random() - 0.5) * 0.35,
-            vy: (Math.random() - 0.5) * 0.35,
-            size: Math.random() * 1.8 + 0.4,
-            opacity: Math.random() * 0.45 + 0.05,
-            color: ['#ff3a1a','#ffd700','#ff6b1a','#ff9a40'][Math.floor(Math.random()*4)]
-          };
-        }
-
-        resize();
-        for (let i = 0; i < 100; i++) particles.push(mkParticle());
-
-        function draw() {
-          ctx.clearRect(0, 0, w, h);
-          particles.forEach(p => {
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            ctx.fillStyle = p.color;
-            ctx.globalAlpha = p.opacity;
-            ctx.fill();
-            p.x += p.vx; p.y += p.vy;
-            if (p.x < 0 || p.x > w || p.y < 0 || p.y > h) Object.assign(p, mkParticle());
-          });
-          ctx.globalAlpha = 1;
-          requestAnimationFrame(draw);
-        }
-
-        draw();
-        window.addEventListener('resize', resize);
-      })();
-
-      // 汉堡菜单
-      const hamburger = document.getElementById('hamburger');
-      const mobileMenu = document.getElementById('mobileMenu');
-      hamburger.addEventListener('click', () => {
-        hamburger.classList.toggle('open');
-        mobileMenu.classList.toggle('open');
-      });
-      function closeMobile() {
-        hamburger.classList.remove('open');
-        mobileMenu.classList.remove('open');
-      }
-
-      // 平滑滚动导航高亮（顶部导航 + 底部导航）
-      const navLinks = document.querySelectorAll('.main-nav a:not(.mint-nav-btn)');
-      const bottomItems = document.querySelectorAll('.btn-item[data-target]');
-      const sections = document.querySelectorAll('section[id]');
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            const id = '#' + e.target.id;
-            navLinks.forEach(l => {
-              l.classList.toggle('active', l.getAttribute('href') === id);
-            });
-            bottomItems.forEach(l => {
-              l.classList.toggle('active', l.getAttribute('data-target') === e.target.id);
-            });
-          }
-        });
-      }, { threshold: 0.4 });
-      sections.forEach(s => observer.observe(s));
-    </script>
   </body>
 </html>

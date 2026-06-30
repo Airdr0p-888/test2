@@ -1383,6 +1383,15 @@ async function adminAction(action) {
   const mode = Number(await c.mintMode());
   const usdt = mode === 1 ? await c.usdtAddress() : ZERO;
   const reward = await rewardInfo(c);
+  const renounceOwnership = async () => {
+    if ($("renounceConfirmation").value.trim() !== "RENOUNCE") {
+      throw new Error("请输入 RENOUNCE 确认永久丢弃管理员权限");
+    }
+    const [owner, tradingOpen] = await Promise.all([c.owner(), c.tradingOpen()]);
+    if (owner.toLowerCase() !== state.account.toLowerCase()) throw new Error("当前钱包不是合约 Owner");
+    if (!tradingOpen) throw new Error("必须先开启交易，才能丢弃管理员权限");
+    return c.renounceOwnership();
+  };
   const calls = {
     setMintPrice: () => c.setMintPrice(parseToken($("newMintPrice").value)),
     setTokenPerMint: () => c.setTokenPerMint(parseToken($("newTokenPerMint").value)),
@@ -1444,10 +1453,12 @@ async function adminAction(action) {
     withdrawBNB: () => c.withdrawBNB($("withdrawBNBAmount").value ? parseToken($("withdrawBNBAmount").value) : 0n),
     withdrawToken: () => c.withdrawToken($("withdrawTokenAddress").value.trim(), $("withdrawTokenAmount").value ? parseToken($("withdrawTokenAmount").value) : 0n),
     withdrawDividendReserve: () => c.withdrawDividendReserve($("withdrawDividendReserveAmount").value ? parseToken($("withdrawDividendReserveAmount").value) : 0n),
-    withdrawLP: () => c.withdrawLP($("withdrawLPAmount").value ? parseToken($("withdrawLPAmount").value) : 0n)
+    withdrawLP: () => c.withdrawLP($("withdrawLPAmount").value ? parseToken($("withdrawLPAmount").value) : 0n),
+    renounceOwnership
   };
   if (!calls[action]) throw new Error(`未知操作：${action}`);
   await txDone(await calls[action](), action);
+  if (action === "renounceOwnership") $("renounceConfirmation").value = "";
   await refreshAdmin();
 }
 
