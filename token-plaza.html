@@ -175,30 +175,75 @@
         created_at: 1782795369,
         updated_at: 1782795371,
         main_pair: "0x8da43dc582bbd975d6d85902513119b4dc768e4f"
+      }, {
+        total: "5000000000000000",
+        launch_price: "0.0000000000073795",
+        current_price_eth: "0.000000000000013332",
+        current_price_usd: "0.0000000000073795",
+        price_change_1d: "0",
+        lock_amount: "0",
+        burn_amount: "0",
+        other_amount: "0",
+        tx_volume_u_24h: "0",
+        locked_percent: "0",
+        market_cap: "36897.5",
+        fdv: "36897.5",
+        tvl: "2214.54936",
+        risk_score: "40",
+        token: "0xe1b639ef1210fa47c57bd8a0759627d23db60000",
+        chain: "bsc",
+        decimal: 18,
+        name: "\u6740\u96f6\u62f3\u5934",
+        symbol: "FIST",
+        holders: 152,
+        logo_url: "https://www.iconaves.com/token_icon_request/6a436fea39716310f579c7df_1782804459.png",
+        created_at: 1782801973,
+        updated_at: 1782801975,
+        main_pair: "0xae8d74613acb58f4aa262fab977521285e3f28e1"
       }];
 
-      // 预埋详情数据（含 pairs、风险报告等）
+      // 预埋详情数据（含 pairs），key 为代币地址（小写）
       const FALLBACK_DETAIL_DATA = {
-        token: FALLBACK_TOKEN_DATA[0],
-        is_audited: false,
-        pairs: [{
-          reserve0: "0", reserve1: "0",
-          token0_price_eth: "1", token0_price_usd: "552.94147",
-          token1_price_eth: "0", token1_price_usd: "0",
-          price_change: "0", price_change_1d: "0", price_change_1h: "",
-          volume_u: "0", low_u: "0", high_u: "0",
-          fee: "", total_supply: "", tx_amount: "",
-          pair: "0x8da43dc582bbd975d6d85902513119b4dc768e4f",
-          chain: "bsc", amm: "cakev2",
-          token0_address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
-          token0_symbol: "WBNB", token0_decimal: 18,
-          token1_address: "0xe628bdb19c744f2225d2d18f78f050265e600000",
-          token1_symbol: "\u6740\u96f6\u62f3\u5934", token1_decimal: 18,
-          target_token: "0xe628bdb19c744f2225d2d18f78f050265e600000",
-          price_change_1d: "0",
-          created_at: 1782795369, tx_count: 0, updated_at: 1782795369,
-          market_cap: "0", fdv: "0", is_fake: false
-        }]
+        "0xe628bdb19c744f2225d2d18f78f050265e600000": {
+          pairs: [{
+            reserve0: "0", reserve1: "0",
+            token0_price_eth: "1", token0_price_usd: "552.94147",
+            token1_price_eth: "0", token1_price_usd: "0",
+            price_change: "0", price_change_1d: "0", price_change_1h: "",
+            volume_u: "0", low_u: "0", high_u: "0",
+            fee: "", total_supply: "", tx_amount: "",
+            pair: "0x8da43dc582bbd975d6d85902513119b4dc768e4f",
+            chain: "bsc", amm: "cakev2",
+            token0_address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+            token0_symbol: "WBNB", token0_decimal: 18,
+            token1_address: "0xe628bdb19c744f2225d2d18f78f050265e600000",
+            token1_symbol: "\u6740\u96f6\u62f3\u5934", token1_decimal: 18,
+            target_token: "0xe628bdb19c744f2225d2d18f78f050265e600000",
+            price_change_1d: "0",
+            created_at: 1782795369, tx_count: 0, updated_at: 1782795369,
+            market_cap: "0", fdv: "0", is_fake: false
+          }]
+        },
+        "0xe1b639ef1210fa47c57bd8a0759627d23db60000": {
+          pairs: [{
+            reserve0: "2.0024", reserve1: "442.81744",
+            token0_price_eth: "1", token0_price_usd: "552.94147",
+            token1_price_eth: "0.000000000000013332", token1_price_usd: "0.0000000000073795",
+            price_change: "0", price_change_1d: "0", price_change_1h: "",
+            volume_u: "0", low_u: "0", high_u: "0",
+            fee: "", total_supply: "", tx_amount: "",
+            pair: "0xae8d74613acb58f4aa262fab977521285e3f28e1",
+            chain: "bsc", amm: "cakev2",
+            token0_address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+            token0_symbol: "WBNB", token0_decimal: 18,
+            token1_address: "0xe1b639ef1210fa47c57bd8a0759627d23db60000",
+            token1_symbol: "FIST", token1_decimal: 18,
+            target_token: "0xe1b639ef1210fa47c57bd8a0759627d23db60000",
+            price_change_1d: "0",
+            created_at: 1782801973, tx_count: 0, updated_at: 1782801975,
+            market_cap: "36897.5", fdv: "36897.5", is_fake: false
+          }]
+        }
       };
 
       // ── 当前数据 ──
@@ -213,6 +258,8 @@
         if (n >= 1e9) return (n / 1e9).toFixed(2) + " B";
         if (n >= 1e6) return (n / 1e6).toFixed(2) + " M";
         if (n >= 1e3) return n.toLocaleString("en-US", { maximumFractionDigits: decimals });
+        // 极小价格用科学计数法
+        if (n < 1e-6 && n > 0) return n.toExponential(4);
         if (n < 0.01 && n > 0) return "< 0.01";
         return n.toFixed(decimals);
       }
@@ -435,7 +482,7 @@
         // 尝试获取详情（含 pairs 信息），失败则用预埋数据
         let detail = null;
         try { detail = await fetchTokenDetail(address); } catch (e) { /* CORS 等 */ }
-        if (!detail) detail = FALLBACK_DETAIL_DATA;
+        if (!detail) detail = FALLBACK_DETAIL_DATA[address.toLowerCase()] || { pairs: [] };
 
         const status = getStatusClass(t);
         const statusLabel = getStatusLabel(t);
