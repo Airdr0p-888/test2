@@ -149,6 +149,58 @@
       const DEFAULT_CONTRACT = "0xE628bdB19c744f2225d2D18f78f050265e600000";
       const DEFAULT_CHAIN = "bsc";
 
+      // ── 预埋真实数据（Ave.ai API 返回，解决浏览器 CORS 跨域限制）──
+      // 数据来源：Ave.ai v2 /tokens 接口，最后更新时间：2026-06-30
+      const FALLBACK_TOKEN_DATA = [{
+        total: "137500000000000000",
+        launch_price: "0",
+        current_price_eth: "0",
+        current_price_usd: "0",
+        price_change_1d: "0",
+        lock_amount: "0",
+        burn_amount: "0",
+        other_amount: "0",
+        tx_volume_u_24h: "0",
+        locked_percent: "0",
+        market_cap: "0",
+        fdv: "0",
+        risk_score: "55",
+        token: "0xe628bdb19c744f2225d2d18f78f050265e600000",
+        chain: "bsc",
+        decimal: 18,
+        name: "\u6740\u96f6\u62f3\u5934",
+        symbol: "\u6740\u96f6\u62f3\u5934",
+        holders: 1,
+        logo_url: "",
+        created_at: 1782795369,
+        updated_at: 1782795371,
+        main_pair: "0x8da43dc582bbd975d6d85902513119b4dc768e4f"
+      }];
+
+      // 预埋详情数据（含 pairs、风险报告等）
+      const FALLBACK_DETAIL_DATA = {
+        token: FALLBACK_TOKEN_DATA[0],
+        is_audited: false,
+        pairs: [{
+          reserve0: "0", reserve1: "0",
+          token0_price_eth: "1", token0_price_usd: "552.94147",
+          token1_price_eth: "0", token1_price_usd: "0",
+          price_change: "0", price_change_1d: "0", price_change_1h: "",
+          volume_u: "0", low_u: "0", high_u: "0",
+          fee: "", total_supply: "", tx_amount: "",
+          pair: "0x8da43dc582bbd975d6d85902513119b4dc768e4f",
+          chain: "bsc", amm: "cakev2",
+          token0_address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+          token0_symbol: "WBNB", token0_decimal: 18,
+          token1_address: "0xe628bdb19c744f2225d2d18f78f050265e600000",
+          token1_symbol: "\u6740\u96f6\u62f3\u5934", token1_decimal: 18,
+          target_token: "0xe628bdb19c744f2225d2d18f78f050265e600000",
+          price_change_1d: "0",
+          created_at: 1782795369, tx_count: 0, updated_at: 1782795369,
+          market_cap: "0", fdv: "0", is_fake: false
+        }]
+      };
+
       // ── 当前数据 ──
       let currentTokens = [];
       let currentFilter = "all";
@@ -168,7 +220,13 @@
       function formatSupply(rawSupply, decimal = 18) {
         const divisor = Math.pow(10, decimal);
         const num = parseFloat(rawSupply) / divisor;
-        return formatNumber(num, 2);
+        if (!num && num !== 0) return "--";
+        if (num === 0) return "0";
+        if (num >= 1e9) return (num / 1e9).toFixed(2) + " B";
+        if (num >= 1e6) return (num / 1e6).toFixed(2) + " M";
+        if (num >= 1e3) return num.toLocaleString("en-US", { maximumFractionDigits: 2 });
+        // 小数显示完整精度，去掉末尾多余的 0
+        return parseFloat(num.toFixed(8)).toString();
       }
 
       function formatDate(timestamp) {
@@ -207,14 +265,6 @@
       function getStatusLabel(tokenData) {
         const cls = getStatusClass(tokenData);
         return cls === "launched" ? "✅ 已上线" : "🔥 Mint中";
-      }
-
-      function getRiskLabel(score) {
-        const s = parseInt(score);
-        if (s >= 80) return { text: "高风险", color: "#ff4444" };
-        if (s >= 50) return { text: "中等风险", color: "#ff9800" };
-        if (s > 0) return { text: "较低风险", color: "#00e676" };
-        return { text: "未知", color: "#888" };
       }
 
       // ── 调用 Ave.ai API ──
@@ -266,7 +316,6 @@
       function renderCard(t) {
         const status = getStatusClass(t);
         const statusLabel = getStatusLabel(t);
-        const risk = getRiskLabel(t.risk_score);
         const supply = formatSupply(t.total, t.decimal || 18);
         const price = parseFloat(t.current_price_usd) > 0 ? `$${formatNumber(t.current_price_usd, 8)}` : "暂无报价";
         const mcap = parseFloat(t.market_cap) > 0 ? `$${formatNumber(t.market_cap)}` : "暂无";
@@ -275,15 +324,14 @@
         // 用名称前两个字做头像
         const avatarText = t.symbol && t.symbol.length >= 2 ? t.symbol.slice(0, 2) : (t.name ? t.name.slice(0, 2) : "?");
 
+        const mintUrl = `./mint.html?contract=${t.token}`;
+
         return `
-          <div class="tp-card ${status}" data-contract="${t.token}">
+          <div class="tp-card ${status}" data-contract="${t.token}" onclick="window.location.href='${mintUrl}'" style="cursor:pointer;">
             <div class="tp-card-badge ${status}">${statusLabel}</div>
-            <div class="tp-risk-badge" style="--risk-color:${risk.color}">${risk.text}</div>
             <div class="tp-card-header">
-              ${t.logo_url
-                ? `<img src="${t.logo_url}" class="tp-card-avatar-img" alt="${t.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/><div class="tp-card-avatar">${avatarText}</div>`
-                : `<div class="tp-card-avatar">${avatarText}</div>`
-              }
+              <img src="./touxiao.png" class="tp-card-avatar-img-show" alt="${t.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>
+              <div class="tp-card-avatar" style="display:none;">${avatarText}</div>
               <div class="tp-card-info">
                 <h3>${t.name || "Unknown"}</h3>
                 <span class="tp-card-symbol">${t.symbol || ""}</span>
@@ -311,14 +359,14 @@
                 <span class="tp-cs-val">${t.holders != null ? t.holders.toLocaleString() : "--"} 人</span>
               </div>
               <div class="tp-card-stat">
-                <span class="tp-cs-label">风险评分</span>
-                <span class="tp-cs-val">${t.risk_score != null ? t.risk_score + "/100" : "--"}</span>
+                <span class="tp-cs-label">创建时间</span>
+                <span class="tp-cs-val">${formatDate(t.created_at)}</span>
               </div>
             </div>
             <div class="tp-card-actions">
-              <button class="tp-card-btn tp-btn-detail" onclick="openTokenModal('${t.token}')">查看详情 →</button>
-              <a href="${bscscanLink(t.token)}" target="_blank" class="tp-card-btn tp-btn-bsc" title="BscScan">🔗</a>
-              <a href="${aveLink(t.token)}" target="_blank" class="tp-card-btn tp-btn-ave" title="Ave.ai">Ave</a>
+              <a href="${mintUrl}" class="tp-card-btn tp-btn-detail" onclick="event.stopPropagation();">🥊 进入 Mint →</a>
+              <a href="${bscscanLink(t.token)}" target="_blank" class="tp-card-btn tp-btn-bsc" title="BscScan" onclick="event.stopPropagation();">🔗</a>
+              <a href="${aveLink(t.token)}" target="_blank" class="tp-card-btn tp-btn-ave" title="Ave.ai" onclick="event.stopPropagation();">Ave</a>
             </div>
           </div>
         `;
@@ -371,12 +419,13 @@
         const t = currentTokens.find(x => x.token === address);
         if (!t) return;
 
-        // 尝试获取详情（含 pairs 信息）
-        const detail = await fetchTokenDetail(address);
+        // 尝试获取详情（含 pairs 信息），失败则用预埋数据
+        let detail = null;
+        try { detail = await fetchTokenDetail(address); } catch (e) { /* CORS 等 */ }
+        if (!detail) detail = FALLBACK_DETAIL_DATA;
 
         const status = getStatusClass(t);
         const statusLabel = getStatusLabel(t);
-        const risk = getRiskLabel(t.risk_score);
         const supply = formatSupply(t.total, t.decimal || 18);
         const price = parseFloat(t.current_price_usd) > 0 ? "$" + formatNumber(t.current_price_usd, 8) : "暂无报价";
         const mcap = parseFloat(t.market_cap) > 0 ? "$" + formatNumber(t.market_cap) : "暂无";
@@ -416,7 +465,8 @@
         }
 
         document.getElementById("tpModalHeader").innerHTML = `
-          <div class="tp-modal-avatar">${avatarText}</div>
+          <img src="./touxiao.png" class="tp-modal-avatar-img-show" alt="${t.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>
+          <div class="tp-modal-avatar" style="display:none;">${avatarText}</div>
           <div>
             <h2>${t.name} <span class="tp-modal-symbol">${t.symbol}</span></h2>
             <span class="tp-card-badge ${status}">${statusLabel}</span>
@@ -459,10 +509,6 @@
             <div class="tp-mi-row">
               <span class="tp-mi-label">持币者数量</span>
               <span class="tp-mi-val">${t.holders != null ? t.holders.toLocaleString() + " 人" : "--"}</span>
-            </div>
-            <div class="tp-mi-row">
-              <span class="tp-mi-label">风险评分</span>
-              <span class="tp-mi-val" style="color:${risk.color}">${t.risk_score ?? "--"} / 100 (${risk.text})</span>
             </div>
             <div class="tp-mi-row">
               <span class="tp-mi-label">创建时间</span>
@@ -517,23 +563,30 @@
         if (e.key === "Enter") searchByAddress();
       });
 
-      // ── 加载默认代币 ──
+      // ── 加载默认代币（优先 API，失败则降级到本地预埋数据）──
       async function loadDefaultToken() {
         showLoading(`正在从 Ave.ai 加载 ${shortenAddr(DEFAULT_CONTRACT)} 数据...`);
+
+        // 先尝试实时 API（可能因 CORS 被浏览器拦截）
+        let apiOk = false;
         try {
           const results = await fetchTokenByContract(DEFAULT_CONTRACT);
           if (results.length > 0) {
             currentTokens = results;
-            renderList();
-          } else {
-            document.getElementById("tokenList").innerHTML = "";
-            document.getElementById("tpEmpty").style.display = "flex";
-            document.getElementById("tpError").style.display = "none";
-            updateStatsZero();
+            apiOk = true;
+            document.getElementById("apiStatus").textContent = "Ave.ai 实时数据";
           }
         } catch (err) {
-          showError(err.message);
+          console.log("API 请求失败，使用预埋数据:", err.message);
         }
+
+        // API 失败 → 使用预埋的真实数据
+        if (!apiOk) {
+          currentTokens = JSON.parse(JSON.stringify(FALLBACK_TOKEN_DATA));
+          document.getElementById("apiStatus").textContent = "Ave.ai 缓存数据 (CORS)";
+        }
+
+        renderList();
       }
 
       // ── UI 状态 ──
