@@ -41,7 +41,7 @@
         <span class="btn-ico">🚀</span>
         <span class="btn-txt">发射台</span>
       </a>
-      <a href="./mint.html" class="btn-item btn-mint">
+      <a href="./mint.html?contract=0xE628bdB19c744f2225d2D18f78f050265e600000" class="btn-item btn-mint">
         <span class="btn-ico">🥊</span>
         <span class="btn-txt">Mint</span>
       </a>
@@ -348,7 +348,7 @@
               </div>
               <div class="tp-card-stat">
                 <span class="tp-cs-label">总供应量</span>
-                <span class="tp-cs-val">${supply}</span>
+                <span class="tp-cs-val">${supply} ${t.symbol || ""}</span>
               </div>
               <div class="tp-card-stat">
                 <span class="tp-cs-label">24h 交易量</span>
@@ -492,7 +492,7 @@
             </div>
             <div class="tp-mi-row">
               <span class="tp-mi-label">总供应量</span>
-              <span class="tp-mi-val">${supply}</span>
+              <span class="tp-mi-val">${supply} ${t.symbol || ""}</span>
             </div>
             <div class="tp-mi-row">
               <span class="tp-mi-label">市值</span>
