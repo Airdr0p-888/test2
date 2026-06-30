@@ -112,9 +112,14 @@ function log(message) {
 
 function showError(error) {
   const raw = error?.shortMessage || error?.reason || error?.message || String(error);
-  const message = /insufficient funds|exceeds balance|not enough|gas \* price|overshot/i.test(raw)
-    ? TEXT.bnbNotEnough
-    : raw;
+  let message;
+  if (/insufficient funds|exceeds balance|not enough|gas \* price|overshot/i.test(raw)) {
+    message = TEXT.bnbNotEnough;
+  } else if (/not whitelisted/i.test(raw)) {
+    message = "\u5f53\u524d\u94b1\u5305\u4e0d\u662f\u767d\u540d\u5355";
+  } else {
+    message = raw;
+  }
   log(message);
   alert(message);
 }

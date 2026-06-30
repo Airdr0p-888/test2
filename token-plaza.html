@@ -220,13 +220,26 @@
       function formatSupply(rawSupply, decimal = 18) {
         const divisor = Math.pow(10, decimal);
         const num = parseFloat(rawSupply) / divisor;
-        if (!num && num !== 0) return "--";
-        if (num === 0) return "0";
-        if (num >= 1e9) return (num / 1e9).toFixed(2) + " B";
-        if (num >= 1e6) return (num / 1e6).toFixed(2) + " M";
-        if (num >= 1e3) return num.toLocaleString("en-US", { maximumFractionDigits: 2 });
-        // 小数显示完整精度，去掉末尾多余的 0
-        return parseFloat(num.toFixed(8)).toString();
+        const rawNum = parseFloat(rawSupply);
+        if (!rawNum && rawNum !== 0) return "--";
+        if (rawNum === 0) return "0";
+
+        // 如果除以 decimals 后结果 >= 1，用实际值格式化
+        if (num >= 1) {
+          if (num >= 1e12) return (num / 1e12).toFixed(2) + " T";
+          if (num >= 1e9) return (num / 1e9).toFixed(2) + " B";
+          if (num >= 1e6) return (num / 1e6).toFixed(2) + " M";
+          if (num >= 1e3) return num.toLocaleString("en-US", { maximumFractionDigits: 2 });
+          return parseFloat(num.toFixed(8)).toString();
+        }
+
+        // 如果结果 < 1（decimals 可能不准确），直接用原始数字格式化
+        if (rawNum >= 1e15) return (rawNum / 1e15).toFixed(2) + " Q";
+        if (rawNum >= 1e12) return (rawNum / 1e12).toFixed(2) + " T";
+        if (rawNum >= 1e9) return (rawNum / 1e9).toFixed(2) + " B";
+        if (rawNum >= 1e6) return (rawNum / 1e6).toFixed(2) + " M";
+        if (rawNum >= 1e3) return (rawNum / 1e3).toFixed(2) + " K";
+        return rawNum.toString();
       }
 
       function formatDate(timestamp) {
