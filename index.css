@@ -1,5 +1,5 @@
 /* ============================================
-   杀零拳�?· 官网样式
+   杀零拳头 · 官网样式
    ============================================ */
 
 :root {
@@ -175,7 +175,7 @@ main, header, footer { position: relative; z-index: 1; }
   transform: translateY(-1px);
 }
 
-/* 发射台导航按�?*/
+/* 发射台导航按钮 */
 .launch-nav-btn {
   margin-left: 4px;
   background: linear-gradient(135deg, #8a1500, #cc2200) !important;
@@ -191,7 +191,7 @@ main, header, footer { position: relative; z-index: 1; }
   box-shadow: 0 4px 18px rgba(255,140,26,0.35);
 }
 
-/* Hero 发射台按�?*/
+/* Hero 发射台按钮 */
 .btn-launch-hero {
   display: inline-flex;
   align-items: center;
@@ -213,7 +213,7 @@ main, header, footer { position: relative; z-index: 1; }
   transform: translateY(-2px);
 }
 
-/* 底部导航发射�?tab */
+/* 底部导航发射台 tab */
 .btn-launch {
   background: rgba(255,140,26,0.06);
 }
@@ -261,7 +261,7 @@ main, header, footer { position: relative; z-index: 1; }
 .hamburger.open span:nth-child(2) { opacity: 0; }
 .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
 
-/* 移动端菜�?*/
+/* 移动端菜单 */
 .mobile-menu {
   position: fixed;
   top: 66px;
@@ -544,7 +544,7 @@ main, header, footer { position: relative; z-index: 1; }
   flex-shrink: 0;
 }
 
-/* 英雄区头�?*/
+/* 英雄区头像 */
 .hero-visual {
   display: flex;
   justify-content: center;
@@ -673,7 +673,7 @@ main, header, footer { position: relative; z-index: 1; }
   50% { box-shadow: 0 0 0 6px rgba(255,215,0,0.08); }
 }
 
-/* ── 特性网�?── */
+/* ── 特性网格 ── */
 .feature-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -977,7 +977,7 @@ main, header, footer { position: relative; z-index: 1; }
   box-shadow: 0 4px 16px rgba(255,58,26,0.4);
 }
 
-/* ── 路线�?── */
+/* ── 路线图 ── */
 .roadmap-timeline {
   position: relative;
   display: grid;
@@ -1278,9 +1278,9 @@ main, header, footer { position: relative; z-index: 1; }
   color: rgba(255,255,255,0.2);
 }
 
-/* ── 响应�?── */
+/* ── 响应式 ── */
 
-/* 手机底部导航�?*/
+/* 手机底部导航栏 */
 .bottom-tab-nav {
   display: none;
 }
@@ -1300,7 +1300,7 @@ main, header, footer { position: relative; z-index: 1; }
   .main-nav { display: none; }
   .hamburger { display: none; }
 
-  /* 底部固定导航�?*/
+  /* 底部固定导航栏 */
   .bottom-tab-nav {
     display: flex;
     position: fixed;
@@ -1355,7 +1355,7 @@ main, header, footer { position: relative; z-index: 1; }
     filter: drop-shadow(0 0 6px rgba(255,58,26,0.5));
   }
 
-  /* 底部留空间避免遮�?*/
+  /* 底部留空间避免遮挡 */
   main { padding-bottom: 20px; }
   .site-footer { padding-bottom: 80px; }
 }
@@ -1371,28 +1371,6 @@ main, header, footer { position: relative; z-index: 1; }
   .rm-dot { left: -36px; }
   .footer-inner { padding: 0 20px; }
   .final-cta { padding: 72px 20px; }
-}
-
-/* Hero 代币广场按钮 */
-.btn-plaza-hero {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 14px 32px;
-  border-radius: 14px;
-  font-size: 17px;
-  font-weight: 800;
-  text-decoration: none;
-  background: linear-gradient(135deg, #0a0a00, #1a1500);
-  color: #ff9800;
-  border: 1.5px solid rgba(255,152,0,0.35);
-  transition: all 0.25s;
-}
-.btn-plaza-hero:hover {
-  background: linear-gradient(135deg, #1a1200, #2a1f00);
-  border-color: rgba(255,152,0,0.7);
-  box-shadow: 0 6px 24px rgba(255,152,0,0.3);
-  transform: translateY(-2px);
 }
 
 /* Hero 代币广场按钮 */
